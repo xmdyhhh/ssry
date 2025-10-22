@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('表格搜索')" />
+    <th:block th:include="include :: bootstrap-select-css" />
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form role="form" class="form-inline">
+                        <div class="form-group">
+                            <label for="cityCode" class="sr-only">城市</label>
+
+                            <select  class="form-control" style="width: 120px" id="cityCode" name="cityCode">
+                                <option value="101010100">北京</option>
+                                <option value="101030100">天津</option>
+                                <option value="101120101">济南</option>
+                                <option value="101120301">淄博</option>
+                                <option value="101120201">青岛</option>
+                                <option value="101120501">烟台</option>
+                                <option value="101120601">潍坊</option>
+                                <option value="101121101">滨州</option>
+                                <option value="101120401">德州</option>
+                                <option value="101120701">济宁</option>
+                                <option value="101120801">泰安</option>
+                                <option value="101120901">临沂</option>
+                                <option value="101121301">威海</option>
+                                <option value="101121201">东营</option>
+                                <option value="101121701">聊城</option>
+                                <option value="101121401">枣庄</option>
+                                <option value="101121501">日照</option>
+                                <option value="101050101">哈尔滨</option>
+
+                                <option value="101310201">三亚</option>
+
+
+                            </select>
+
+                        </div>
+                        <a class="btn btn-primary btn-rounded btn-sm" onclick="getData()"><i class="fa fa-search"></i>&nbsp;查询</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>温度</h5>
+                    <div class="ibox-tools">
+
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts"  id="echarts-wendu"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>湿度</h5>
+                    <div class="ibox-tools">
+
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts"  id="echarts-shidu"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>实时天气</h5>
+                    <div class="ibox-tools">
+
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                    <table class="table table-stripped small">
+                        <tbody>
+
+                        <tr>
+                            <td style="width: 120px">
+                                天气
+                            </td>
+                            <td>
+                                <span id="spType">晴</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                温度
+                            </td>
+                            <td>
+                                <span id="spWendu">20</span>  ℃
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                湿度
+                            </td>
+                            <td>
+                                <span id="spShidu">50</span>    %
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                空气质量
+                            </td>
+                            <td>
+                                <span id="spKongQi">良</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                风
+                            </td>
+                            <td>
+                                <span id="spFeng"> 西北风 2-3级别</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                pm2.5
+                            </td>
+                            <td>
+                                <span id="spPm25"> 10</span>
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                    <br/>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>未来7天</h5>
+                    <div class="ibox-tools">
+
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                    <div class="echarts" style="height: 400px"  id="echarts-forecast"></div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+
+
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: bootstrap-select-js" />
+<th:block th:include="include :: jquery-cxselect-js" />
+<th:block th:include="include :: echarts-js" />
+<script type="text/javascript" src="https://fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+
+<script th:inline="javascript">
+
+
+    forecastData = {
+        days: ['星期六', '星期日', '星期一', '星期二', '星期三', '星期四', '星期五'],
+        dates: ['2025-09-13', '2025-09-14', '2025-09-15', '2025-09-16', '2025-09-17', '2025-09-18', '2025-09-19'],
+        highTemp: [29, 30, 25, 27, 25, 24, 24],
+        lowTemp: [19, 18, 19, 17, 16, 16, 17],
+        weather: ['多云', '晴转多云', '小雨', '晴', '晴', '多云', '多云'],
+        icons: ['icon_yun', 'icon_yun', 'icon_yu', 'icon_qing', 'icon_qing', 'icon_yun', 'icon_yun'],
+        humidity: [45, 50, 55, 65, 70, 85, 40],
+        wind: ['3级', '3-4级', '4级', '4-5级', '3级', '3-4级', '2级']
+    };
+
+    var wenduChart = echarts.init(document.getElementById("echarts-wendu"));
+
+    var shiduChart = echarts.init(document.getElementById("echarts-shidu"));
+    var forecastChart = echarts.init(document.getElementById('echarts-forecast'));
+
+
+    optionWenDu = {
+        series: [
+            {
+                type: 'gauge',
+                center: ['50%', '60%'],
+                startAngle: 200,
+                endAngle: -20,
+                min: -30,
+                max: 50,
+                splitNumber: 10,
+                itemStyle: {
+                    color: '#FFAB91'
+                },
+                progress: {
+                    show: true,
+                    width: 30
+                },
+                pointer: {
+                    show: false
+                },
+                axisLine: {
+                    lineStyle: {
+                        width: 30
+                    }
+                },
+                axisTick: {
+                    distance: -45,
+                    splitNumber: 5,
+                    lineStyle: {
+                        width: 2,
+                        color: '#999'
+                    }
+                },
+                splitLine: {
+                    distance: -52,
+                    length: 14,
+                    lineStyle: {
+                        width: 2,
+                        color: '#999'
+                    }
+                },
+                axisLabel: {
+                    distance: -10,
+                    color: '#999',
+                    fontSize: 15
+                },
+                anchor: {
+                    show: false
+                },
+                title: {
+                    show: false
+                },
+                detail: {
+                    valueAnimation: true,
+                    width: '60%',
+                    lineHeight: 20,
+                    borderRadius: 8,
+                    offsetCenter: [0, '-15%'],
+                    fontSize: 20,
+                    fontWeight: 'bolder',
+                    formatter: '{value} °C',
+                    color: 'inherit'
+                },
+                data: [
+                    {
+                        value: 20
+                    }
+                ]
+            }
+
+        ]
+    };
+    optionShiDu = {
+        series: [
+            {
+                type: 'gauge',
+                axisLine: {
+                    lineStyle: {
+                        width: 10,
+                        color: [
+                            [0.3, '#67e0e3'],
+                            [0.7, '#37a2da'],
+                            [1, '#fd666d']
+                        ]
+                    }
+                },
+                pointer: {
+                    itemStyle: {
+                        color: 'auto'
+                    }
+                },
+                axisTick: {
+                    distance: -30,
+                    length: 8,
+                    lineStyle: {
+                        color: '#fff',
+                        width: 2
+                    }
+                },
+                splitLine: {
+                    distance: -30,
+                    length: 30,
+                    lineStyle: {
+                        color: '#fff',
+                        width: 4
+                    }
+                },
+                axisLabel: {
+                    color: 'inherit',
+                    distance: 10,
+                    fontSize: 10
+                },
+                detail: {
+                    valueAnimation: true,
+                    formatter: '{value} %',
+                    color: 'inherit',
+                    fontSize: 20,
+                },
+                data: [
+                    {
+                        value: 70
+                    }
+                ]
+            }
+        ]
+    };
+    optionForecast = {
+        backgroundColor: 'transparent',
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderColor: '#eee',
+            borderWidth: 1,
+            textStyle: { color: '#333' },
+            formatter: function(params) {
+                let param = params[0];
+                return `<div class="font-medium">${forecastData.dates[param.dataIndex]}</div>
+                            <div>最高温度: ${forecastData.highTemp[param.dataIndex]}°C</div>
+                            <div>最低温度: ${forecastData.lowTemp[param.dataIndex]}°C</div>
+                            <div>天气: ${forecastData.weather[param.dataIndex]}</div>`;
+            }
+        },
+        legend: {
+            data: ['最高温度', '最低温度'],
+            top: 0,
+            textStyle: { color: '#666' }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                boundaryGap: false,
+                data: forecastData.days.map((day, i) => `${forecastData.days[i]}`),
+                axisLine: {
+                    lineStyle: {
+                        color: '#ddd'
+                    }
+                },
+                position: 'top',
+                axisLabel: {
+                    lineHeight: 30,
+                    color: '#666',
+                    rich: {
+                        icon_qing: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/qing.png' // 图标地址
+                            }
+                        },
+                        icon_yun: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/yun.png' // 图标地址
+                            }
+                        },
+                        icon_yin: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/yin.png' // 图标地址
+                            }
+                        },
+                        icon_lei: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/lei.png' // 图标地址
+                            }
+                        },
+                        icon_xue: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/xue.png' // 图标地址
+                            }
+                        },
+                        icon_shachen: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/shachen.png' // 图标地址
+                            }
+                        },
+                        icon_wu: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/wu.png' // 图标地址
+                            }
+                        },
+                        icon_bingbao: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/bingbao.png' // 图标地址
+                            }
+                        },
+                        icon_yu: {
+                            width: 25, // 图标宽度
+                            height: 25, // 图标高度
+                            backgroundColor: {
+                                image: 'http://widget.tianqiapi.com/static/skin/peach/yu.png' // 图标地址
+                            }
+                        }
+                    },
+                    // 2. 调用 rich 模板，组合“图标+文字”
+                    formatter: function(value) {
+                        // 根据 X 轴数据（value）匹配对应的图标模板
+
+                        const index = forecastData.days.indexOf(value);
+
+                        const currentDate = forecastData.dates[index]; // 动态取日期
+                        const currentWeather = forecastData.weather[index]; // 动态取天气
+                        const icon=  forecastData.icons[index];
+
+                        return `${currentDate}\n{${icon}|}\n${currentWeather}`;
+                    },
+                    // 标签横向对齐（避免图标偏移）
+                    align: 'center'
+                }
+            }, {
+                type: 'category',
+                boundaryGap: false,
+                data: forecastData.days.map((day, i) => `${forecastData.days[i]}`),
+                axisLine: {
+                    lineStyle: {
+                        color: '#ddd'
+                    }
+                },
+                position: 'bottom',
+                axisLabel: {
+                    lineHeight: 20,
+                    color: '#666'
+                }
+            }, ],
+        yAxis: {
+            type: 'value',
+            name: '',
+            nameTextStyle: { color: '#666' },
+            axisLine: {
+                lineStyle: { color: '#ddd' }
+            },
+            splitLine: {
+                lineStyle: { color: '#f0f0f0' }
+            },
+            axisLabel: {
+                formatter: '{value}',
+                color: '#666'
+            },
+            min: function(value) {
+                return value.min - 2; // 最小值向下调整2度
+            },
+            max: function(value) {
+                return value.max + 2; // 最大值向上调整2度
+            }
+        },
+        series: [
+            {
+                name: '最高温度',
+                type: 'line',
+                data: forecastData.highTemp,
+                symbol: 'circle',
+                symbolSize: 8,
+                lineStyle: {
+                    width: 3,
+                    color: '#F56C6C' // 暖色调
+                },
+                itemStyle: {
+                    color: '#F56C6C',
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    shadowBlur: 4,
+                    shadowColor: 'rgba(245, 108, 108, 0.5)'
+                },
+                emphasis: {
+                    scale: true,
+                    symbolSize: 10
+                },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(245, 108, 108, 0.3)' },
+                        { offset: 1, color: 'rgba(245, 108, 108, 0)' }
+                    ])
+                }
+            },
+            {
+                name: '最低温度',
+                type: 'line',
+                data: forecastData.lowTemp,
+                symbol: 'circle',
+                symbolSize: 8,
+                lineStyle: {
+                    width: 3,
+                    color: '#4E5BA6' // 冷色调
+                },
+                itemStyle: {
+                    color: '#4E5BA6',
+                    borderWidth: 2,
+                    borderColor: '#fff',
+                    shadowBlur: 4,
+                    shadowColor: 'rgba(78, 91, 166, 0.5)'
+                },
+                emphasis: {
+                    scale: true,
+                    symbolSize: 10
+                },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(78, 91, 166, 0.3)' },
+                        { offset: 1, color: 'rgba(78, 91, 166, 0)' }
+                    ])
+                }
+            }
+        ]
+    };
+
+
+    wenduChart.setOption(optionWenDu);
+    shiduChart.setOption(optionShiDu);
+    forecastChart.setOption(optionForecast);
+
+
+    $(window).resize(function() {
+        shiduChart.resize();
+        wenduChart.resize();
+        forecastChart.resize();
+    });
+
+    function  getData()
+    {
+        var cityCode = $("#cityCode").val();
+        $.ajax({
+            type: "POST",
+            url: "/resttemplate/getTianQi2",
+            data: {cityCode:cityCode},
+            dataType: "json",
+            success: function (data) {
+                if(data.code == 0)
+                {
+                    weather = data.weather;
+
+                    wenduChart.setOption({
+                        series: [
+                            {
+                                data: [
+                                    {
+                                        value: weather.data.wendu
+                                    }
+                                ]
+                            }
+                        ]
+                    });
+                    shiduChart.setOption({
+                        series: [
+                            {
+                                data: [
+                                    {
+                                        value: weather.data.shiduFloat
+                                    }
+                                ]
+                            }
+                        ]
+                    });
+
+                    $("#spType").text(weather.data.forecast[0].type);
+                    $("#spWendu").text(weather.data.wendu);
+                    $("#spShidu").text(weather.data.shidu);
+                    $("#spKongQi").text(weather.data.quality);
+                    $("#spFeng").text(weather.data.forecast[0].fx+ weather.data.forecast[0].fl);
+                    $("#spPm25").text(weather.data.pm25);
+
+                    //spType spWendu  spShidu spKongQi  spFeng spPm25
+                    forecastData = data.forecastData;
+                    optionForecast.xAxis[0].data = forecastData.days.map((day, i) => `${day}`); // 顶部X轴数据
+                    optionForecast.xAxis[1].data = forecastData.days.map((day, i) => `${day}`); // 底部X轴数据
+                    optionForecast.series[0].data = forecastData.highTemp; // 最高温曲线数据
+                    optionForecast.series[1].data = forecastData.lowTemp; // 最低温曲线数据
+
+
+                    forecastChart.setOption(optionForecast);
+                    forecastChart.resize();
+
+
+                }
+                else
+                {
+                    $.modal.alertWarning('获取失败')
+
+                }
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>

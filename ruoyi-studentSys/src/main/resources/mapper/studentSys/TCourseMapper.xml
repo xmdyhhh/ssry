@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.studentSys.mapper.TCourseMapper">
+    
+    <resultMap type="TCourse" id="TCourseResult">
+        <result property="courseId"    column="course_id"    />
+        <result property="courseName"    column="course_name"    />
+        <result property="courseCredit"    column="course_credit"    />
+        <result property="courseTerm"    column="course_term"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectTCourseVo">
+        select course_id, course_name, course_credit, course_term, remark from t_course
+    </sql>
+
+    <select id="selectTCourseList" parameterType="TCourse" resultMap="TCourseResult">
+        <include refid="selectTCourseVo"/>
+        <where>  
+            <if test="courseName != null  and courseName != ''"> and course_name like concat('%', #{courseName}, '%')</if>
+            <if test="courseCredit != null "> and course_credit = #{courseCredit}</if>
+            <if test="courseTerm != null  and courseTerm != ''"> and course_term = #{courseTerm}</if>
+        </where>
+    </select>
+    
+    <select id="selectTCourseByCourseId" parameterType="String" resultMap="TCourseResult">
+        <include refid="selectTCourseVo"/>
+        where course_id = #{courseId}
+    </select>
+
+    <insert id="insertTCourse" parameterType="TCourse">
+        insert into t_course
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">course_id,</if>
+            <if test="courseName != null">course_name,</if>
+            <if test="courseCredit != null">course_credit,</if>
+            <if test="courseTerm != null">course_term,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="courseId != null">#{courseId},</if>
+            <if test="courseName != null">#{courseName},</if>
+            <if test="courseCredit != null">#{courseCredit},</if>
+            <if test="courseTerm != null">#{courseTerm},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTCourse" parameterType="TCourse">
+        update t_course
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="courseName != null">course_name = #{courseName},</if>
+            <if test="courseCredit != null">course_credit = #{courseCredit},</if>
+            <if test="courseTerm != null">course_term = #{courseTerm},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where course_id = #{courseId}
+    </update>
+
+    <delete id="deleteTCourseByCourseId" parameterType="String">
+        delete from t_course where course_id = #{courseId}
+    </delete>
+
+    <delete id="deleteTCourseByCourseIds" parameterType="String">
+        delete from t_course where course_id in 
+        <foreach item="courseId" collection="array" open="(" separator="," close=")">
+            #{courseId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改地区')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-district-edit" th:object="${sysDistrict}">
+        <input name="districtId" th:field="*{districtId}" type="hidden">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="districtName" th:field="*{districtName}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="districtFullname" th:field="*{districtFullname}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="pinyin" th:field="*{pinyin}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="lat" th:field="*{lat}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="lng" th:field="*{lng}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="parentId" th:field="*{parentId}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="remark" th:field="*{remark}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "studentSys/district";
+    $("#form-district-edit").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-district-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

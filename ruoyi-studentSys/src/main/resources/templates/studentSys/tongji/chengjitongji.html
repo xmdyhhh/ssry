@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('百度ECharts')" />
+</head>
+<body class="gray-bg">
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>折线图</h5>
+                    <div class="ibox-tools">
+                        <select id="selectCourse" onchange="selectCourseChanged()"
+                                class="form-control">
+                            <option th:each="item : ${courses}"
+                                    th:value="${item.courseId}"
+                                    th:text="${item.courseName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts1"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>柱状图</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="javascript:;">选项1</a>
+                            </li>
+                            <li><a href="javascript:;">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+
+                    <div class="echarts" id="echarts-bar-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>中国地图</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="javascript:;">选项1</a>
+                            </li>
+                            <li><a href="javascript:;">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div style="height:600px" id="echarts-map-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: echarts-js" />
+<script th:inline="javascript">
+
+    provinceList = [[${provinceList}]]
+    maxCount = [[${maxCount}]]
+
+
+
+
+    var chartDom = document.getElementById('echarts1');
+    var myChart = echarts.init(chartDom);
+
+    option = {
+        title: {
+            text: '分数段统计',
+            left: 'center'
+        },
+        tooltip: {
+            trigger: 'item'
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left'
+        },
+        series: [
+            {
+                name: 'Access From',
+                type: 'pie',
+                radius: '50%',
+                data: [],
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', myChart.resize);
+
+    var chartDombar = document.getElementById('echarts-bar-chart');
+    var myChart2 = echarts.init(chartDombar);
+
+
+    optionBar = {
+        xAxis: {
+            type: 'category',
+            data: []
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                data: [],
+                type: 'bar',
+                // 添加标签配置，显示柱子上的数字
+                label: {
+                    show: true,          // 显示标签
+                    position: 'top',     // 标签位置在柱子顶部
+                    align: 'center',     // 水平居中对齐
+                    verticalAlign: 'bottom', // 垂直方向靠下对齐
+                    formatter: '{c}'     // 格式化显示内容，{c}表示数据值
+                }
+            }
+        ]
+    };
+
+    myChart2.setOption(optionBar);
+    window.addEventListener('resize', myChart2.resize);
+
+
+
+
+    selectCourseChanged();
+
+    function selectCourseChanged() {
+        genChart1();
+        genChart2();
+
+    }
+
+    function genChart1()
+    {
+        const courseId =  $("#selectCourse").val();
+
+        option.title.text = "分数段统计-" + $("#selectCourse option:selected").text();
+
+        $.ajax({
+            url: ctx + 'getRangeByCourseId?courseId=' + courseId,
+            type: 'post',
+            dataType: 'json',
+            success: function (data) {
+                option.series[0].data = data.listdata;
+                myChart.setOption(option);
+            }
+        })
+
+
+    }
+
+    function genChart2()
+    {
+        const courseId =  $("#selectCourse").val();
+
+        option.title.text = "分数段统计-" + $("#selectCourse option:selected").text();
+
+        $.ajax({
+            url: ctx + 'getAvgByCourseId?courseId=' + courseId,
+            type: 'post',
+            dataType: 'json',
+            success: function (data) {
+
+                optionBar.xAxis.data =data.clsNameList;
+                optionBar.series[0].data =data.avgList;
+
+
+
+                myChart2.setOption(optionBar);
+            }
+        })
+
+
+    }
+    var mapChart = echarts.init(document.getElementById("echarts-map-chart"));
+    var mapoption = {
+        title : {
+            text: '学生分布',
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item'
+        },
+        // legend: {
+        //     orient: 'vertical',
+        //     x:'left',
+        //     data:['iphone3','iphone4','iphone5']
+        // },
+        dataRange: {
+            min: 0,
+            max: maxCount,
+            x: 'left',
+            y: 'bottom',
+            text:['高','低'],           // 文本，默认为数值文本
+            calculable : true
+        },
+        toolbox: {
+            show: true,
+            orient : 'vertical',
+            x: 'right',
+            y: 'center',
+            feature : {
+                mark : {show: true},
+                dataView : {show: true, readOnly: false},
+                restore : {show: true},
+                saveAsImage : {show: true}
+            }
+        },
+        roamController: {
+            show: true,
+            x: 'right',
+            mapTypeControl: {
+                'china': true
+            }
+        },
+        series : [
+            {
+                type: 'map',
+                mapType: 'china',
+                roam: false,
+                itemStyle:{
+                    normal:{label:{show:true}},
+                    emphasis:{label:{show:true}}
+                },
+                data:provinceList
+            }
+        ]
+    };
+    mapChart.setOption(mapoption);
+    $(window).resize(mapChart.resize);
+
+
+
+</script>
+</body>
+</html>

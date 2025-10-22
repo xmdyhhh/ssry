@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增地区')" />
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-district-add">
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="districtName" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="districtFullname" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="pinyin" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="lat" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="lng" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="parentId" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">：</label>
+                <div class="col-sm-8">
+                    <input name="remark" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "studentSys/district"
+    $("#form-district-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-district-add').serialize());
+        }
+    }
+</script>
+</body>
+</html>

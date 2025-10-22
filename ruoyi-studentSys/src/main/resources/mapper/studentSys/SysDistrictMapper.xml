@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.studentSys.mapper.SysDistrictMapper">
+    
+    <resultMap type="SysDistrict" id="SysDistrictResult">
+        <result property="districtId"    column="district_id"    />
+        <result property="districtName"    column="district_name"    />
+        <result property="districtFullname"    column="district_fullname"    />
+        <result property="pinyin"    column="pinyin"    />
+        <result property="lat"    column="lat"    />
+        <result property="lng"    column="lng"    />
+        <result property="districtType"    column="district_type"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSysDistrictVo">
+        select district_id, district_name, district_fullname, pinyin, lat, lng, district_type, parent_id, status, remark from sys_district
+    </sql>
+
+    <select id="selectSysDistrictList" parameterType="SysDistrict" resultMap="SysDistrictResult">
+        <include refid="selectSysDistrictVo"/>
+        <where>  
+            <if test="districtName != null  and districtName != ''"> and district_name like concat('%', #{districtName}, '%')</if>
+            <if test="districtFullname != null  and districtFullname != ''"> and district_fullname like concat('%', #{districtFullname}, '%')</if>
+            <if test="pinyin != null  and pinyin != ''"> and pinyin = #{pinyin}</if>
+            <if test="lat != null  and lat != ''"> and lat = #{lat}</if>
+            <if test="lng != null  and lng != ''"> and lng = #{lng}</if>
+            <if test="districtType != null  and districtType != ''"> and district_type = #{districtType}</if>
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysDistrictByDistrictId" parameterType="String" resultMap="SysDistrictResult">
+        <include refid="selectSysDistrictVo"/>
+        where district_id = #{districtId}
+    </select>
+
+    <insert id="insertSysDistrict" parameterType="SysDistrict">
+        insert into sys_district
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="districtId != null">district_id,</if>
+            <if test="districtName != null">district_name,</if>
+            <if test="districtFullname != null">district_fullname,</if>
+            <if test="pinyin != null">pinyin,</if>
+            <if test="lat != null">lat,</if>
+            <if test="lng != null">lng,</if>
+            <if test="districtType != null">district_type,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="districtId != null">#{districtId},</if>
+            <if test="districtName != null">#{districtName},</if>
+            <if test="districtFullname != null">#{districtFullname},</if>
+            <if test="pinyin != null">#{pinyin},</if>
+            <if test="lat != null">#{lat},</if>
+            <if test="lng != null">#{lng},</if>
+            <if test="districtType != null">#{districtType},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysDistrict" parameterType="SysDistrict">
+        update sys_district
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="districtName != null">district_name = #{districtName},</if>
+            <if test="districtFullname != null">district_fullname = #{districtFullname},</if>
+            <if test="pinyin != null">pinyin = #{pinyin},</if>
+            <if test="lat != null">lat = #{lat},</if>
+            <if test="lng != null">lng = #{lng},</if>
+            <if test="districtType != null">district_type = #{districtType},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where district_id = #{districtId}
+    </update>
+
+    <delete id="deleteSysDistrictByDistrictId" parameterType="String">
+        delete from sys_district where district_id = #{districtId}
+    </delete>
+
+    <delete id="deleteSysDistrictByDistrictIds" parameterType="String">
+        delete from sys_district where district_id in 
+        <foreach item="districtId" collection="array" open="(" separator="," close=")">
+            #{districtId}
+        </foreach>
+    </delete>
+
+</mapper>
