@@ -1,6 +1,9 @@
 package com.ruoyi.ssry.controller;
 
 import java.util.List;
+
+import com.ruoyi.ssry.domain.College;
+import com.ruoyi.ssry.service.ICollegeService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,11 +36,15 @@ public class StudentController extends BaseController
 
     @Autowired
     private IStudentService studentService;
+    @Autowired
+    private ICollegeService collegeService;
 
     @RequiresPermissions("ssry:student:view")
     @GetMapping()
-    public String student()
+    public String student(ModelMap mmap)
     {
+        List<College> collegeList = collegeService.selectCollegeList(new College());
+        mmap.put("collegeList", collegeList);
         return prefix + "/student";
     }
 

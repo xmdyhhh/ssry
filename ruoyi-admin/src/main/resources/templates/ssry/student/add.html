@@ -3,6 +3,7 @@
 <head>
     <th:block th:include="include :: header('新增学生信息')" />
     <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
@@ -84,17 +85,18 @@
             </div>
             <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">登录密码：</label>
+                    <label class="col-sm-3 control-label">照片url：</label>
                     <div class="col-sm-8">
-                        <input name="password" class="form-control" type="text" required>
+                        <img th:src="@{/img/user.png}" id="myimg" width="80" height="100">
+                        <input id="avatar" name="avatar" class="form-control" type="hidden">
                     </div>
                 </div>
             </div>
             <div class="col-xs-12">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">头像图片路径：</label>
+                    <label class="col-sm-3 control-label">上传文件</label>
                     <div class="col-sm-8">
-                        <input name="avatar" class="form-control" type="text">
+                        <input id="singleFile" name="file" type="file">
                     </div>
                 </div>
             </div>
@@ -102,6 +104,8 @@
     </div>
     <th:block th:include="include :: footer" />
     <th:block th:include="include :: datetimepicker-js" />
+    <th:block th:include="include :: bootstrap-fileinput-js"/>
+    <th:block th:include="include :: jquery-cxselect-js"/>
     <script th:inline="javascript">
         var prefix = ctx + "ssry/student"
         $("#form-student-add").validate({
@@ -119,6 +123,29 @@
             minView: "month",
             autoclose: true
         });
+        $("input[name='birthday']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+        $("#singleFile").fileinput({
+            uploadUrl: ctx + 'common/upload',
+            maxFileCount: 1,
+            autoReplace: true,
+            showPreview: false,
+            showUpload: true,
+            showRemove: true
+        }).on('fileuploaded', function (event, data, previewId, index) {
+            var rsp = data.response;
+            $("#avatar").val(rsp.url);
+            $("#myimg").attr("src", rsp.url);
+            log.info("return url：" + rsp.url)
+            log.info("reutrn fileName：" + rsp.fileName)
+            log.info("reutrn newFileName：" + rsp.newFileName)
+            log.info("return originalFilename：" + rsp.originalFilename)
+        }).on('fileremoved', function (event, id, index) {
+            $("input[name='" + event.currentTarget.id + "']").val('')
+        })
     </script>
 </body>
 </html>

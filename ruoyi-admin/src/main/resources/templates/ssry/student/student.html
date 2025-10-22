@@ -51,6 +51,7 @@
         var editFlag = [[${@permission.hasPermi('ssry:student:edit')}]];
         var removeFlag = [[${@permission.hasPermi('ssry:student:remove')}]];
         var prefix = ctx + "ssry/student";
+        var collegeList = [[${collegeList}]];
 
         $(function() {
             var options = {
@@ -76,10 +77,20 @@
                     field: 'name',
                     title: '姓名'
                 },
-                {
-                    field: 'sex',
-                    title: '性别'
-                },
+                    {
+                        field: 'sex',
+                        title: '性别',
+                        formatter: function (value, row, index) {
+                            if (value == '1') {
+                                return '男';
+                            } else if (value == '2') {
+                                return '女';
+                            } else if (value == '0') {
+                                return '未知';
+                            }
+                            return value;
+                        }
+                    },
                 {
                     field: 'birthDate',
                     title: '出生日期'
@@ -102,12 +113,27 @@
                 },
                 {
                     field: 'collegeId',
-                    title: '所属学院ID'
+                    title: '所属学院',
+                    formatter: function (value, row, index) {
+                        for (let i = 0; i < collegeList.length; i++) {
+                            if (collegeList[i].id == value)
+                                return collegeList[i].collegeName;
+                        }
+                        return value;
+                    }
                 },
-                {
-                    field: 'status',
-                    title: '状态'
-                },
+                    {
+                        field: 'status',
+                        title: '状态',
+                        formatter: function (value, row, index) {
+                            if (value == '0') {
+                                return '正常';
+                            } else if (value == '1') {
+                                return '停用';
+                            }
+                            return value;
+                        }
+                    },
                 {
                     field: 'remark',
                     title: '备注'

@@ -51,6 +51,7 @@
         var editFlag = [[${@permission.hasPermi('ssry:course:edit')}]];
         var removeFlag = [[${@permission.hasPermi('ssry:course:remove')}]];
         var prefix = ctx + "ssry/course";
+        var teacherList = [[${teacherList}]];
 
         $(function() {
             var options = {
@@ -118,7 +119,14 @@
                 },
                 {
                     field: 'teacherId',
-                    title: '授课教师ID'
+                    title: '授课教师',
+                    formatter: function (value, row, index) {
+                        for (let i = 0; i < teacherList.length; i++) {
+                            if (teacherList[i].id == value)
+                                return teacherList[i].name;
+                        }
+                        return value;
+                    }
                 },
                 {
                     title: '操作',
