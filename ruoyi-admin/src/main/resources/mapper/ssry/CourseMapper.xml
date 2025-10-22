@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ssry.mapper.CourseMapper">
+    
+    <resultMap type="Course" id="CourseResult">
+        <result property="id"    column="id"    />
+        <result property="courseCode"    column="course_code"    />
+        <result property="courseName"    column="course_name"    />
+        <result property="credits"    column="credits"    />
+        <result property="semester"    column="semester"    />
+        <result property="maxEnrollment"    column="max_enrollment"    />
+        <result property="currentEnrollment"    column="current_enrollment"    />
+        <result property="startDate"    column="start_date"    />
+        <result property="endDate"    column="end_date"    />
+        <result property="dayOfWeek"    column="day_of_week"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="classroom"    column="classroom"    />
+        <result property="teacherId"    column="teacher_id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCourseVo">
+        select id, course_code, course_name, credits, semester, max_enrollment, current_enrollment, start_date, end_date, day_of_week, start_time, end_time, classroom, teacher_id, create_time, update_time from course
+    </sql>
+
+    <select id="selectCourseList" parameterType="Course" resultMap="CourseResult">
+        <include refid="selectCourseVo"/>
+        <where>  
+            <if test="courseCode != null  and courseCode != ''"> and course_code = #{courseCode}</if>
+            <if test="courseName != null  and courseName != ''"> and course_name like concat('%', #{courseName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectCourseById" parameterType="String" resultMap="CourseResult">
+        <include refid="selectCourseVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCourse" parameterType="Course" useGeneratedKeys="true" keyProperty="id">
+        insert into course
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="courseCode != null and courseCode != ''">course_code,</if>
+            <if test="courseName != null and courseName != ''">course_name,</if>
+            <if test="credits != null">credits,</if>
+            <if test="semester != null and semester != ''">semester,</if>
+            <if test="maxEnrollment != null">max_enrollment,</if>
+            <if test="currentEnrollment != null">current_enrollment,</if>
+            <if test="startDate != null">start_date,</if>
+            <if test="endDate != null">end_date,</if>
+            <if test="dayOfWeek != null and dayOfWeek != ''">day_of_week,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="classroom != null and classroom != ''">classroom,</if>
+            <if test="teacherId != null and teacherId != ''">teacher_id,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="courseCode != null and courseCode != ''">#{courseCode},</if>
+            <if test="courseName != null and courseName != ''">#{courseName},</if>
+            <if test="credits != null">#{credits},</if>
+            <if test="semester != null and semester != ''">#{semester},</if>
+            <if test="maxEnrollment != null">#{maxEnrollment},</if>
+            <if test="currentEnrollment != null">#{currentEnrollment},</if>
+            <if test="startDate != null">#{startDate},</if>
+            <if test="endDate != null">#{endDate},</if>
+            <if test="dayOfWeek != null and dayOfWeek != ''">#{dayOfWeek},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="classroom != null and classroom != ''">#{classroom},</if>
+            <if test="teacherId != null and teacherId != ''">#{teacherId},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCourse" parameterType="Course">
+        update course
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="courseCode != null and courseCode != ''">course_code = #{courseCode},</if>
+            <if test="courseName != null and courseName != ''">course_name = #{courseName},</if>
+            <if test="credits != null">credits = #{credits},</if>
+            <if test="semester != null and semester != ''">semester = #{semester},</if>
+            <if test="maxEnrollment != null">max_enrollment = #{maxEnrollment},</if>
+            <if test="currentEnrollment != null">current_enrollment = #{currentEnrollment},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="dayOfWeek != null and dayOfWeek != ''">day_of_week = #{dayOfWeek},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="classroom != null and classroom != ''">classroom = #{classroom},</if>
+            <if test="teacherId != null and teacherId != ''">teacher_id = #{teacherId},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCourseById" parameterType="String">
+        delete from course where id = #{id}
+    </delete>
+
+    <delete id="deleteCourseByIds" parameterType="String">
+        delete from course where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

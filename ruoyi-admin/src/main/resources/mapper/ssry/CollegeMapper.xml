@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ssry.mapper.CollegeMapper">
+    
+    <resultMap type="College" id="CollegeResult">
+        <result property="id"    column="id"    />
+        <result property="collegeName"    column="college_name"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectCollegeVo">
+        select id, college_name, create_time, update_time from college
+    </sql>
+
+    <select id="selectCollegeList" parameterType="College" resultMap="CollegeResult">
+        <include refid="selectCollegeVo"/>
+        <where>  
+            <if test="collegeName != null  and collegeName != ''"> and college_name like concat('%', #{collegeName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectCollegeById" parameterType="String" resultMap="CollegeResult">
+        <include refid="selectCollegeVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCollege" parameterType="College" useGeneratedKeys="true" keyProperty="id">
+        insert into college
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="collegeName != null and collegeName != ''">college_name,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="collegeName != null and collegeName != ''">#{collegeName},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCollege" parameterType="College">
+        update college
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="collegeName != null and collegeName != ''">college_name = #{collegeName},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCollegeById" parameterType="String">
+        delete from college where id = #{id}
+    </delete>
+
+    <delete id="deleteCollegeByIds" parameterType="String">
+        delete from college where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
