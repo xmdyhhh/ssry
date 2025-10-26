@@ -40,6 +40,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
 
+    <select id="selectTeacherByteacherno" resultType="com.ruoyi.ssry.domain.Teacher">
+        select * from teacher where teacher_no = #{loginName}
+    </select>
+
+    <select id="getcourselist" resultType="com.ruoyi.ssry.domain.Course">
+        SELECT
+            c.id,
+            c.course_code AS courseCode,
+            c.course_name AS courseName,
+            c.credits,
+            c.semester,
+            c.day_of_week AS dayOfWeek,
+            c.start_time AS startTime,
+            c.end_time AS endTime,
+            c.classroom,
+            c.teacher_id AS teacherId,
+            t.name AS teacherName  -- 从 teacher 表查出姓名
+        FROM course c
+                 JOIN teacher t ON c.teacher_id = t.id
+        WHERE c.teacher_id = #{id}
+    </select>
+
     <insert id="insertTeacher" parameterType="Teacher" useGeneratedKeys="true" keyProperty="id">
         insert into teacher
         <trim prefix="(" suffix=")" suffixOverrides=",">

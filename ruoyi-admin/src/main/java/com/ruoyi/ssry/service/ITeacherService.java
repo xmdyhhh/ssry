@@ -1,6 +1,8 @@
 package com.ruoyi.ssry.service;
 
 import java.util.List;
+
+import com.ruoyi.ssry.domain.Course;
 import com.ruoyi.ssry.domain.Teacher;
 
 /**
@@ -58,4 +60,8 @@ public interface ITeacherService
      * @return 结果
      */
     public int deleteTeacherById(String id);
+
+    Teacher selectTeacherByteacherno(String loginName);
+
+    List<Course> getcourselist(String id);
 }

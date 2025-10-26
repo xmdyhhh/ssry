@@ -2,6 +2,7 @@ package com.ruoyi.ssry.service.impl;
 
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.ssry.domain.Course;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.ssry.mapper.TeacherMapper;
@@ -94,4 +95,15 @@ public class TeacherServiceImpl implements ITeacherService
     {
         return teacherMapper.deleteTeacherById(id);
     }
+
+    @Override
+    public Teacher selectTeacherByteacherno(String loginName) {
+        return teacherMapper.selectTeacherByteacherno(loginName);
+    }
+
+    @Override
+    public List<Course> getcourselist(String id) {
+        return teacherMapper.getcourselist(id);
+    }
+
 }
