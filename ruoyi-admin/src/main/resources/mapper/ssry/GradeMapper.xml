@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ssry.mapper.GradeMapper">
+
+    <!-- 根据学生ID查询成绩列表 -->
+    <select id="studentgradelist" resultType="com.ruoyi.ssry.domain.Grade">
+        SELECT
+        g.id,
+        g.student_id,
+        s.name AS studentName,         <!-- 映射到 Grade.studentName -->
+        g.course_id,
+        c.course_name AS courseName,   <!-- 映射到 Grade.courseName -->
+        c.credits,
+        g.usual_score AS usualScore,
+        g.final_score AS finalScore,
+        g.total_score AS totalScore,
+        g.year,
+        g.semester,
+        g.graded_by AS gradedBy,
+        t.name AS teacherName,         <!-- 映射到 Grade.teacherName -->
+        g.create_time AS createTime,
+        g.update_time AS updateTime
+        FROM grade g
+        LEFT JOIN student s ON g.student_id = s.id
+        LEFT JOIN course c ON g.course_id = c.id
+        LEFT JOIN teacher t ON g.graded_by = t.id   <!-- 修复：g.graded_by → t.id -->
+        WHERE g.student_id = #{studentid}          <!-- 参数名必须与 Service 一致 -->
+        ORDER BY g.year DESC, g.semester DESC, c.course_name
+    </select>
+
+</mapper>
