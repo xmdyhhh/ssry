@@ -58,4 +58,6 @@ public interface IStudentService
      * @return 结果
      */
     public int deleteStudentById(String id);
+
+    Student selectStudentBystudentno(String loginName);
 }

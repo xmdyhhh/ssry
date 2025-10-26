@@ -18,6 +18,16 @@ public class Course extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    // 必须添加 teacherName 字段（不是 teachername）
+    private String teacherName;
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
     /** 主键ID */
     private String id;
 

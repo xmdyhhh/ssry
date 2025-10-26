@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('可选课程列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <!-- 搜索区域 -->
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>课程名称：</label>
+                            <input type="text" name="courseName"/>
+                        </li>
+                        <li>
+                            <label>教师姓名：</label>
+                            <input type="text" name="teacherName"/>
+                        </li>
+                        <li>
+                            <label>学期：</label>
+                            <select name="semester">
+                                <option value="">全部</option>
+                                <option value="春季">春季</option>
+                                <option value="秋季">秋季</option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()">
+                                <i class="fa fa-search"></i>&nbsp;搜索
+                            </a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()">
+                                <i class="fa fa-refresh"></i>&nbsp;重置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!-- 导出权限 -->
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:course:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 引入公共 footer -->
+<th:block th:include="include :: footer"/>
+
+<!-- JS 脚本 -->
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/enrollment";
+
+    $(function () {
+        // 先销毁防止重复初始化
+        $('#bootstrap-table').bootstrapTable('destroy');
+
+        // 初始化表格
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/availablelist",  // 获取可选课程列表
+            method: 'get',
+            pagination: true,
+            sidePagination: 'client', // 前端分页
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            search: false,
+            showColumns: true,
+            clickToSelect: true,
+            toolbar: '#toolbar',
+            exportDataType: "all",
+            exportTypes: ['excel'],
+            columns: [
+                { checkbox: true },
+                { field: 'courseCode',     title: '课程代码',     width: 100 },
+                { field: 'courseName',     title: '课程名称',     width: 150 },
+                {
+                    field: 'credits',
+                    title: '学分',
+                    width: 60,
+                    formatter: function (value) {
+                        return value || '';
+                    }
+                },
+                { field: 'semester',       title: '学期',         width: 80 },
+                { field: 'teacherName',    title: '任课教师',     width: 100 },
+                { field: 'classroom',      title: '上课教室',     width: 100 },
+                {
+                    field: 'dayOfWeek',
+                    title: '星期',
+                    formatter: function (value) {
+                        const days = {
+                            'Mon': '星期一', 'Tue': '星期二', 'Wed': '星期三',
+                            'Thu': '星期四', 'Fri': '星期五', 'Sat': '星期六', 'Sun': '星期日'
+                        };
+                        return days[value] || value;
+                    }
+                },
+                {
+                    field: 'startTime',
+                    title: '开始时间',
+                    formatter: function (value) {
+                        if (!value || value === '1970-01-01') {
+                            return '';
+                        }
+                        return value.substr(11, 5);
+                    }
+                },
+                {
+                    field: 'endTime',
+                    title: '结束时间',
+                    formatter: function (value) {
+                        if (!value || value === '1970-01-01') {
+                            return '';
+                        }
+                        return value.substr(11, 5);
+                    }
+                },
+                { field: 'startDate',      title: '开课日期',     width: 100 },
+                { field: 'endDate',        title: '结课日期',     width: 100 },
+                { field: 'maxEnrollment',  title: '最大容量',     width: 80 },
+                { field: 'currentEnrollment', title: '已选人数', width: 80 },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row) {
+                        const isFull = row.currentEnrollment >= row.maxEnrollment;
+                        const btnClass = isFull ? 'btn-default disabled' : 'btn-success';
+                        const btnText = isFull ? '已满' : '选课';
+                        const btnIcon = isFull ? '' : '<i class="fa fa-plus"></i> ';
+                        const onclick = isFull ? '' : `onclick="enrollCourse('${row.id}')"`;
+                        return `<a class="btn btn-xs ${btnClass}" ${onclick}>
+                                    ${btnIcon}${btnText}
+                                </a>`;
+                    }
+                }
+            ],
+            responseHandler: function (res) {
+                console.log("Response:", res);
+                if (res.code === 0 && Array.isArray(res.data)) {
+                    return res.data.map(item => ({
+                        ...item,
+                        credits: item.credits != null ? item.credits.toString() : ''
+                    }));
+                } else {
+                    layer.msg(res.msg || "数据加载失败");
+                    return [];
+                }
+            }
+        });
+    });
+
+    // 全局函数：选课
+    function enrollCourse(courseId) {
+        layer.confirm('确定要选择这门课程吗？', {
+            icon: 3,
+            title: '确认选课'
+        }, function (index) {
+            $.ajax({
+                url: prefix + "/select",           // 后端选课接口
+                type: 'POST',
+                data: { courseId: courseId },      // 传课程ID
+                success: function (result) {
+                    if (result.code === 0) {
+                        layer.msg("选课成功", { icon: 1 });
+                        // 刷新表格，更新已选人数
+                        $('#bootstrap-table').bootstrapTable('refresh');
+                    } else {
+                        layer.msg(result.msg || "选课失败", { icon: 2 });
+                    }
+                },
+                error: function () {
+                    layer.msg("请求失败，请稍后重试", { icon: 2 });
+                }
+            });
+            layer.close(index);
+        });
+    }
+</script>
+
+</body>
+</html>

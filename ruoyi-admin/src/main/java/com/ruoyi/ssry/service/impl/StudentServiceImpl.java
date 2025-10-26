@@ -94,4 +94,9 @@ public class StudentServiceImpl implements IStudentService
     {
         return studentMapper.deleteStudentById(id);
     }
+
+    @Override
+    public Student selectStudentBystudentno(String loginName) {
+        return studentMapper.selectStudentBystudentno(loginName);
+    }
 }

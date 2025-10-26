@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('百度ECharts')" />
+</head>
+<body class="gray-bg">
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>折线图</h5>
+                    <div class="ibox-tools">
+                        <select id="selectCourse" onchange="selectCourseChanged()"
+                                class="form-control">
+                            <option th:each="item : ${courses}"
+                                    th:value="${item.courseId}"
+                                    th:text="${item.courseName}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts1"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>柱状图</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-user">
+                            <li><a href="javascript:;">选项1</a>
+                            </li>
+                            <li><a href="javascript:;">选项2</a>
+                            </li>
+                        </ul>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-bar-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>历年趋势</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div style="height:500px" id="echarts-line-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: echarts-js" />
+<script th:inline="javascript">
+
+    provinceList = [[${provinceList}]]
+    maxCount = [[${maxCount}]]
+
+    // 饼图初始化
+    var chartDom = document.getElementById('echarts1');
+    var myChart = echarts.init(chartDom);
+    var option = {
+        title: { text: '分数段统计', left: 'center' },
+        tooltip: { trigger: 'item' },
+        legend: { orient: 'vertical', left: 'left' },
+        series: [{ name: 'Access From', type: 'pie', radius: '50%', data: [], emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' } } }]
+    };
+    myChart.setOption(option);
+    window.addEventListener('resize', myChart.resize);
+
+    // 柱状图初始化
+    var chartDombar = document.getElementById('echarts-bar-chart');
+    var myChart2 = echarts.init(chartDombar);
+    var optionBar = {
+        xAxis: { type: 'category', data: [] },
+        yAxis: { type: 'value' },
+        series: [{ data: [], type: 'bar', label: { show: true, position: 'top', align: 'center', verticalAlign: 'bottom', formatter: '{c}' } }]
+    };
+    myChart2.setOption(optionBar);
+    window.addEventListener('resize', myChart2.resize);
+
+    // 折线图初始化
+    var lineChart = echarts.init(document.getElementById('echarts-line-chart'));
+    var lineOption = {
+        title: { text: '历年平均分趋势', left: 'center' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        xAxis: { type: 'category', data: [] },
+        yAxis: { type: 'value', name: '平均分' },
+        series: [{
+            name: '平均分',
+            type: 'line',
+            smooth: true,
+            data: [],
+            itemStyle: { color: '#5470C6' },
+            areaStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                    offset: 0, color: 'rgba(84, 112, 198, 0.6)'
+                }, {
+                    offset: 1, color: 'rgba(84, 112, 198, 0.1)'
+                }])
+            }
+        }]
+    };
+    lineChart.setOption(lineOption);
+    window.addEventListener('resize', function () { lineChart.resize(); });
+
+    selectCourseChanged();
+
+    function selectCourseChanged() {
+        genChart1();
+        genChart2();
+        genChartLine();
+    }
+
+    function genChart1() {
+        const courseId = $("#selectCourse").val();
+        option.title.text = "分数段统计-" + $("#selectCourse option:selected").text();
+        $.ajax({
+            url: ctx + 'getRangeByCourseId?courseId=' + courseId,
+            type: 'post',
+            dataType: 'json',
+            success: function (data) {
+                option.series[0].data = data.listdata;
+                myChart.setOption(option);
+            }
+        });
+    }
+
+    function genChart2() {
+        const courseId = $("#selectCourse").val();
+        option.title.text = "分数段统计-" + $("#selectCourse option:selected").text();
+        $.ajax({
+            url: ctx + 'getAvgByCourseId?courseId=' + courseId,
+            type: 'post',
+            dataType: 'json',
+            success: function (data) {
+                optionBar.xAxis.data = data.clsNameList;
+                optionBar.series[0].data = data.avgList;
+                myChart2.setOption(optionBar);
+            }
+        });
+    }
+
+    function genChartLine() {
+        const courseId = $("#selectCourse").val();
+        const courseName = $("#selectCourse option:selected").text();
+        lineOption.title.text = '历年平均分趋势 - ' + courseName;
+        $.ajax({
+            url: ctx + 'getYearlyAvgByCourseId?courseId=' + courseId,
+            type: 'post',
+            dataType: 'json',
+            success: function (data) {
+                lineOption.xAxis.data = data.years || [];
+                lineOption.series[0].data = data.avgScores || [];
+                lineChart.setOption(lineOption, true);
+            },
+            error: function () {
+                alert('获取历年数据失败');
+            }
+        });
+    }
+</script>
+</body>
+</html>
