@@ -60,7 +60,7 @@
 
 <!-- JS 脚本 -->
 <script th:inline="javascript">
-    var prefix = ctx + "ssry/enrollment";
+    var prefix = ctx + "ssry/ts";
 
     $(function () {
         // 先销毁（防止重复初始化）
@@ -68,7 +68,7 @@
 
         // 初始化表格
         $('#bootstrap-table').bootstrapTable({
-            url: prefix + "/selectedlist",
+            url: prefix + "/teachercourselist",
             method: 'get',
             pagination: true,
             sidePagination: 'client',
@@ -84,14 +84,7 @@
                 { checkbox: true },
                 { field: 'courseCode',     title: '课程代码',     width: 100 },
                 { field: 'courseName',     title: '课程名称',     width: 150 },
-                {
-                    field: 'credits',
-                    title: '学分',
-                    width: 60,
-                    formatter: function (value) {
-                        return value || '';
-                    }
-                },
+                { field: 'credits',        title: '学分',         width: 60 },
                 { field: 'semester',       title: '学期',         width: 80 },
                 { field: 'teacherName',    title: '任课教师',     width: 100 },
                 { field: 'classroom',      title: '上课教室',     width: 100 },
@@ -99,38 +92,27 @@
                     field: 'dayOfWeek',
                     title: '星期',
                     formatter: function (value) {
-                        const days = {
-                            'Mon': '星期一', 'Tue': '星期二', 'Wed': '星期三',
-                            'Thu': '星期四', 'Fri': '星期五', 'Sat': '星期六', 'Sun': '星期日'
-                        };
+                        const days = { 'Mon': '星期一', 'Tue': '星期二', 'Wed': '星期三',
+                            'Thu': '星期四', 'Fri': '星期五', 'Sat': '星期六', 'Sun': '星期日' };
                         return days[value] || value;
                     }
                 },
-                {
-                    field: 'startDate',
-                    title: '开始日期',
-                    formatter: function (value) {
-                        return value ? value : '-';
-                    }
-                },
-                {
-                    field: 'endDate',
-                    title: '结束日期',
-                    formatter: function (value) {
-                        return value ? value : '-';
-                    }
-                },
+                { field: 'startDate',      title: '开始日期' },
+                { field: 'endDate',        title: '结束日期' },
                 { field: 'startTime',      title: '开课时间',     width: 100 },
                 { field: 'endTime',        title: '结课时间',     width: 100 },
                 { field: 'maxEnrollment',  title: '最大容量',     width: 80 },
                 { field: 'currentEnrollment', title: '已选人数', width: 80 },
+                { field: 'courseId',       visible: false },
                 {
                     title: '操作',
                     align: 'center',
                     formatter: function (value, row) {
-                        return `<a class="btn btn-danger btn-xs" onclick="dropCourse('${row.id}')">
-                                    <i class="fa fa-times"></i> 退选课程
-                                </a>`;
+                        return `
+            <button class="btn btn-primary btn-xs"
+                    onclick="viewGrades('${row.id}')">
+                <i class="fa fa-eye"></i> 查看成绩
+            </button>`;
                     }
                 }
             ],
@@ -149,31 +131,13 @@
         });
     });
 
-    // 全局函数：退选课程
-    function dropCourse(courseId) {
-        layer.confirm('确定要退选这门课程吗？', {
-            icon: 3,
-            title: '确认退选'
-        }, function (index) {
-            $.ajax({
-                url: prefix + "/exit",
-                type: 'POST',
-                data: { courseId: courseId  },
-                success: function (result) {
-                    if (result.code === 0) {
-                        layer.msg("退选成功", { icon: 1 });
-                        // 刷新表格
-                        $('#bootstrap-table').bootstrapTable('refresh');
-                    } else {
-                        layer.msg(result.msg || "退选失败", { icon: 2 });
-                    }
-                },
-                error: function () {
-                    layer.msg("请求失败，请稍后重试", { icon: 2 });
-                }
-            });
-            layer.close(index);
-        });
+    function viewGrades(courseId) {
+        if (!courseId) {
+            layer.msg('课程ID无效', {icon: 2});
+            return;
+        }
+        const url = ctx + "ssry/grade/tolist?courseId=" + encodeURIComponent(courseId);
+        window.location.href = url;
     }
 </script>
 

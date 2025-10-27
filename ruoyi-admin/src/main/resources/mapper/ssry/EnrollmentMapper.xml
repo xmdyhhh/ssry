@@ -26,8 +26,8 @@
             c.start_date AS startDate,
             c.end_date AS endDate,
             c.day_of_week AS dayOfWeek,
-            c.start_time AS startTime,
-            c.end_time AS endTime,
+            TIME_FORMAT(c.start_time, '%H:%i:%s') AS startTime,  -- 格式化为字符串
+            TIME_FORMAT(c.end_time, '%H:%i:%s') AS endTime,
             c.classroom,
             c.teacher_id AS teacherId,
             (SELECT t.name FROM teacher t WHERE t.id = c.teacher_id) AS teacherName
@@ -52,8 +52,8 @@
             c.start_date AS startDate,
             c.end_date AS endDate,
             c.day_of_week AS dayOfWeek,
-            c.start_time AS startTime,
-            c.end_time AS endTime,
+            TIME_FORMAT(c.start_time, '%H:%i:%s') AS startTime,  -- 格式化为字符串
+            TIME_FORMAT(c.end_time, '%H:%i:%s') AS endTime,
             c.classroom,
             c.teacher_id AS teacherId,
             (SELECT t.name FROM teacher t WHERE t.id = c.teacher_id) AS teacherName

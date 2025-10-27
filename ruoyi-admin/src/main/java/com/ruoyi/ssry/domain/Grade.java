@@ -19,6 +19,10 @@ public class Grade {
     private Date createTime;
     private Date updateTime;
     private Double credits;
+    private String courseCode;
+
+    public String getCourseCode() { return courseCode; }
+    public void setCourseCode(String courseCode) { this.courseCode = courseCode; }
 
     public Grade() {
     }

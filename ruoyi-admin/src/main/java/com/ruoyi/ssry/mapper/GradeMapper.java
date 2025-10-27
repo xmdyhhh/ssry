@@ -11,4 +11,10 @@ import java.util.List;
 public interface GradeMapper {
 
     List<Grade> studentgradelist(String studentid);
+
+    List<Grade> getcourselist(String courseId);
+
+    int updateGrade(Grade grade);
+
+    Grade selectGradeById(Long id);
 }

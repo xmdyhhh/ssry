@@ -58,4 +58,5 @@ public interface CourseMapper
      * @return 结果
      */
     public int deleteCourseByIds(String[] ids);
+
 }

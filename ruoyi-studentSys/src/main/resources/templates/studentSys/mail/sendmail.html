@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh" xmlns:shiro="http://www.w3.org/1999/xhtml">
 <head>
     <th:block th:include="include :: header('基本表单')" />
 </head>
@@ -60,7 +60,12 @@
                         <div class="hr-line-dashed"></div>
                         <div class="form-group">
                             <div class="col-sm-4 col-sm-offset-2">
-                                <button class="btn btn-primary" onclick="sendmail()" type="button">发送</button>
+                                <button class="btn btn-primary" type="button" shiro:hasPermission="sendmail" onclick="sendmail()">
+                                    发送
+                                </button>
+                                <button class="btn btn-primary" type="button" onclick="getToken()">
+                                    getToken
+                                </button>
                             </div>
                         </div>
                     </form>

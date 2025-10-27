@@ -51,12 +51,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             c.course_name AS courseName,
             c.credits,
             c.semester,
+            c.start_date AS startDate,
+            c.end_date AS endDate,
+            c.max_enrollment AS maxEnrollment,
+            c.current_enrollment AS currentEnrollment,
             c.day_of_week AS dayOfWeek,
-            c.start_time AS startTime,
-            c.end_time AS endTime,
+            TIME_FORMAT(c.start_time, '%H:%i:%s') AS startTime,  -- 格式化为字符串
+            TIME_FORMAT(c.end_time, '%H:%i:%s') AS endTime,
             c.classroom,
             c.teacher_id AS teacherId,
-            t.name AS teacherName  -- 从 teacher 表查出姓名
+            t.name AS teacherName
         FROM course c
                  JOIN teacher t ON c.teacher_id = t.id
         WHERE c.teacher_id = #{id}

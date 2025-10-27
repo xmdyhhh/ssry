@@ -1,8 +1,10 @@
 package com.ruoyi.ssry.controller;
 
+import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.ssry.domain.Grade;
 import com.ruoyi.ssry.domain.Student;
@@ -10,9 +12,7 @@ import com.ruoyi.ssry.service.IGradeService;
 import com.ruoyi.ssry.service.IStudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class GradeController extends BaseController {
     private IStudentService studentService;
 
     @GetMapping("/studentgrade")
-    public String studentgrade(){
+    public String studentgrade() {
         return "/ssry/grade/studentgrade";
     }
 
@@ -38,5 +38,31 @@ public class GradeController extends BaseController {
         Student student = studentService.selectStudentBystudentno(loginName);
         List<Grade> list = gradeService.studentgradelist(student.getId());
         return AjaxResult.success(list);
+    }
+
+    @GetMapping("/tolist")
+    public String tolist() {
+        return "/ssry/grade/list";
+    }
+
+    @ResponseBody
+    @GetMapping("/tsgradelist")
+    public AjaxResult tslist(@RequestParam String courseId) {
+        List<Grade> list = gradeService.getcourselist(courseId);
+        return AjaxResult.success(list);
+    }
+
+    /**
+     * 更新成绩（由前端 editScore 调用）
+     */
+    @PostMapping("/updategrade")
+    @Log(title = "成绩管理", businessType = BusinessType.UPDATE)
+    public AjaxResult updateGrade(@RequestBody Grade grade) {
+        try {
+            gradeService.updateGrade(grade);
+            return success("修改成功");
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
     }
 }

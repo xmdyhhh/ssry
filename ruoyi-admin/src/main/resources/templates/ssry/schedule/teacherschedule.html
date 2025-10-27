@@ -70,27 +70,33 @@
                     // 中文星期映射
                     var dayMap = { 'Mon': '周一', 'Tue': '周二', 'Wed': '周三', 'Thu': '周四', 'Fri': '周五', 'Sat': '周六', 'Sun': '周日' };
 
-                    // ✅ 修复字段名：使用正确的驼峰命名
                     res.data.forEach(function (item) {
-                        var day = dayMap[item.dayOfWeek] || '周一'; // 转英文为中文
+                        var day = dayMap[item.dayOfWeek] || '周一'; // 英文转中文
                         var timeSlotIndex = -1;
 
-                        // 找该天第一个空时间段
+                        // ✅ 精确匹配时间段：比较 startTime 和 endTime
                         for (var i = 0; i < lessons.length; i++) {
-                            if (!weekMap[day][i]) {
+                            if (lessons[i].start === item.startTime.slice(0, 5) &&
+                                lessons[i].end === item.endTime.slice(0, 5)) {
                                 timeSlotIndex = i;
                                 break;
                             }
                         }
 
+                        // 如果匹配到时间段，并且该天该节次为空（避免覆盖），则填入
                         if (timeSlotIndex !== -1 && days.includes(day)) {
-                            weekMap[day][timeSlotIndex] = `
-                            <div class="cell">
-                                <strong>${item.courseName}</strong><br>
-                                ${item.teacherName}<br>
-                                <small>${item.classroom}</small>
-                            </div>
-                        `;
+                            // 防止重复填充同一节课（可选）
+                            if (!weekMap[day][timeSlotIndex]) {
+                                weekMap[day][timeSlotIndex] = `
+                <div class="cell">
+                    <strong>${item.courseName}</strong><br>
+                    ${item.teacherName}<br>
+                    <small>${item.classroom}</small>
+                </div>
+            `;
+                            }
+                        } else {
+                            console.warn(`未找到匹配时间段: ${item.courseName} (${item.startTime}-${item.endTime})`);
                         }
                     });
 

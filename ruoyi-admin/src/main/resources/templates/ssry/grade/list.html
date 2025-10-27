@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>学生成绩管理</title>
+    <th:block th:include="include :: header('学生成绩管理')" />
+    <style>
+        body { padding: 20px; }
+        .container-div { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .search-collapse { margin-bottom: 15px; background: #f8f9fa; padding: 15px; border-radius: 5px; }
+        .weight-setting { margin-bottom: 15px; padding: 10px; background: #e7f3ff; border-radius: 5px; }
+        .editable-cell { cursor: pointer; color: #007bff; }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+
+        <!-- 权重设置 -->
+        <div class="col-sm-12 weight-setting">
+            <h5><i class="fa fa-cog"></i> 成绩权重设置</h5>
+            <div class="form-inline">
+                <label>平时成绩权重：</label>
+                <input type="number" id="usualWeight" class="form-control form-control-sm" value="40" min="0" max="100" style="width: 80px;">%
+                &nbsp;&nbsp;
+                <label>期末成绩权重：</label>
+                <input type="number" id="finalWeight" class="form-control form-control-sm" value="60" min="0" max="100" style="width: 80px;">%
+                &nbsp;&nbsp;
+                <a class="btn btn-primary btn-sm" onclick="applyWeights()">应用</a>
+            </div>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:grade:export">
+                <i class="fa fa-download"></i> 导出 Excel
+            </a>
+        </div>
+
+        <!-- 表格 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/grade";
+    var usualWeight = 40;
+    var finalWeight = 60;
+    var courseId;
+
+    // 获取 URL 参数
+    function getUrlParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+    }
+
+    courseId = getUrlParam('courseId');
+    if (!courseId) {
+        $.modal.alertError("缺少课程ID，无法加载成绩");
+        throw new Error("Missing courseId");
+    }
+
+    $(function () {
+        loadWeights(); // 加载保存的权重
+        initTable();
+    });
+
+    // 初始化表格
+    function initTable() {
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/tsgradelist",
+            method: 'get',
+            pagination: true,
+            sidePagination: 'client',
+            pageSize: 10,
+            pageList: [10, 20, 50],
+            search: true,
+            showColumns: true,
+            clickToSelect: true,
+            toolbar: '#toolbar',
+            queryParams: function (params) {
+                return Object.assign(params, { courseId: courseId });
+            },
+            columns: getColumns(),
+            onLoadSuccess: function () {
+                bindEditEvents(); // 表格加载完成后绑定事件
+            },
+            responseHandler: function (res) {
+                if (res.code === 0 && Array.isArray(res.data)) {
+                    return res.data;
+                } else {
+                    $.modal.alertError(res.msg || "数据加载失败");
+                    return [];
+                }
+            }
+        });
+    }
+
+    // 获取列配置
+    function getColumns() {
+        return [
+            { checkbox: true },
+            { field: 'id', title: 'ID', visible: false },
+            { field: 'studentName', title: '学生姓名', width: 120 },
+            {
+                field: 'usualScore',
+                title: '平时成绩',
+                width: 90,
+                formatter: function (value) {
+                    return `<span class="editable-cell" data-field="usualScore">${formatScore(value)}</span>`;
+                }
+            },
+            {
+                field: 'finalScore',
+                title: '期末成绩',
+                width: 90,
+                formatter: function (value) {
+                    return `<span class="editable-cell" data-field="finalScore">${formatScore(value)}</span>`;
+                }
+            },
+            {
+                field: 'totalScore',
+                title: '总评成绩',
+                width: 90,
+                formatter: function (value, row) {
+                    const total = calculateTotal(row.usualScore, row.finalScore);
+                    return isNaN(total) ? '-' : total.toFixed(2);
+                }
+            },
+            { field: 'semester', title: '学期', width: 60 },
+            { field: 'year', title: '学年', width: 60 },
+            { field: 'courseName', title: '课程名称', width: 150 }
+        ];
+    }
+
+    // 格式化成绩显示
+    function formatScore(value) {
+        if (value == null || value === '' || isNaN(parseFloat(value))) return '-';
+        return parseFloat(value).toFixed(2);
+    }
+
+    // 计算总评成绩
+    function calculateTotal(usual, final) {
+        const u = parseFloat(usual) || 0;
+        const f = parseFloat(final) || 0;
+        return (u * usualWeight + f * finalWeight) / 100;
+    }
+
+    // 绑定双击编辑事件（事件委托）
+    function bindEditEvents() {
+        $('#bootstrap-table').off('dblclick', '.editable-cell').on('dblclick', '.editable-cell', function () {
+            const $cell = $(this);
+            const field = $cell.data('field');
+            const rowId = $cell.closest('tr').data('uniqueid'); // 使用 uniqueid 更安全
+            const currentValue = $cell.text() === '-' ? '' : parseFloat($cell.text());
+
+            editScore(rowId, field, currentValue, $cell);
+        });
+    }
+
+    // 编辑成绩
+    function editScore(id, field, currentValue, $cell) {
+        const title = field === 'usualScore' ? '平时成绩' : '期末成绩';
+
+        $.modal.prompt(`请输入【${title}】`, function (inputValue) {
+            const val = parseFloat(inputValue);
+            if (isNaN(val) || val < 0 || val > 100) {
+                $.modal.alertWarning("请输入 0-100 之间的有效分数");
+                return false;
+            }
+
+            // 显示加载状态
+            $cell.addClass('editing').text('保存中...');
+
+            $.ajax({
+                url: prefix + '/updategrade',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    id: id,
+                    [field]: val
+                }),
+                success: function (res) {
+                    if (res.code === 0) {
+                        $.modal.msgSuccess("修改成功");
+
+                        // 更新表格数据
+                        const table = $('#bootstrap-table');
+                        const row = table.bootstrapTable('getRowByUniqueId', id);
+                        if (row) {
+                            row[field] = val;
+                            row.totalScore = calculateTotal(row.usualScore, row.finalScore);
+                            table.bootstrapTable('updateByUniqueId', {
+                                id: id,
+                                row: row
+                            });
+                        }
+                    } else {
+                        $.modal.alertError(res.msg);
+                        $cell.text(formatScore(currentValue));
+                    }
+                },
+                error: function () {
+                    $.modal.alertError("请求失败，请检查网络");
+                    $cell.text(formatScore(currentValue));
+                },
+                complete: function () {
+                    $cell.removeClass('editing');
+                }
+            });
+        }, currentValue); // 弹窗中默认显示原值
+    }
+
+    // 应用权重
+    function applyWeights() {
+        const u = parseInt($('#usualWeight').val()) || 0;
+        const f = parseInt($('#finalWeight').val()) || 0;
+
+        if (u + f !== 100) {
+            $.modal.alertWarning("权重之和必须等于100%");
+            return;
+        }
+
+        usualWeight = u;
+        finalWeight = f;
+
+        // 保存权重
+        try {
+            localStorage.setItem(`grade_weights_${courseId}`, JSON.stringify({ usual: u, final: f }));
+        } catch (e) {
+            console.warn("无法保存权重到 localStorage", e);
+        }
+
+        // 通知用户
+        $.modal.msgSuccess("权重已更新，总评成绩已重新计算");
+
+        // 仅刷新总评列（高效）
+        const table = $('#bootstrap-table');
+        table.bootstrapTable('getData').forEach(row => {
+            row.totalScore = calculateTotal(row.usualScore, row.finalScore);
+            table.bootstrapTable('updateByUniqueId', {
+                id: row.id,
+                row: row
+            });
+        });
+    }
+
+    // 加载保存的权重
+    function loadWeights() {
+        try {
+            const saved = localStorage.getItem(`grade_weights_${courseId}`);
+            if (saved) {
+                const weights = JSON.parse(saved);
+                if (weights.usual + weights.final === 100) {
+                    $('#usualWeight').val(weights.usual);
+                    $('#finalWeight').val(weights.final);
+                    usualWeight = weights.usual;
+                    finalWeight = weights.final;
+                }
+            }
+        } catch (e) {
+            console.warn("读取权重失败", e);
+        }
+    }
+</script>
+</body>
+</html>

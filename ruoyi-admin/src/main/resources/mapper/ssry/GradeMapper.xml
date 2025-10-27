@@ -29,5 +29,69 @@
         WHERE g.student_id = #{studentid}          <!-- 参数名必须与 Service 一致 -->
         ORDER BY g.year DESC, g.semester DESC, c.course_name
     </select>
+    <select id="getcourselist" resultType="com.ruoyi.ssry.domain.Grade">
+        SELECT
+        g.id,
+        g.student_id,
+        s.name AS studentName,
+        g.course_id,
+        c.course_name AS courseName,
+        c.course_code AS courseCode,  <!-- 映射到 Grade.courseCode -->
+        c.credits,
+        g.usual_score AS usualScore,
+        g.final_score AS finalScore,
+        g.total_score AS totalScore,
+        g.year,
+        g.semester,
+        g.graded_by AS gradedBy,
+        t.name AS teacherName,
+        g.create_time AS createTime,
+        g.update_time AS updateTime
+        FROM grade g
+        LEFT JOIN student s ON g.student_id = s.id
+        LEFT JOIN course c ON g.course_id = c.id
+        LEFT JOIN teacher t ON g.graded_by = t.id
+        WHERE g.course_id = #{courseId}
+        ORDER BY g.year DESC, g.semester DESC, c.course_name
+    </select>
 
+    <resultMap type="Grade" id="GradeResult">
+        <id property="id" column="id"/>
+        <result property="studentName" column="student_name"/>
+        <result property="usualScore" column="usual_score"/>
+        <result property="finalScore" column="final_score"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="semester" column="semester"/>
+        <result property="year" column="year"/>
+        <result property="courseName" column="course_name"/>
+        <result property="courseId" column="course_id"/>
+    </resultMap>
+
+    <sql id="selectGradeVo">
+        SELECT id, student_name, usual_score, final_score, total_score,
+               semester, year, course_name, course_id
+        FROM ssry_grade
+    </sql>
+
+    <select id="selectGradeList" resultMap="GradeResult">
+        <include refid="selectGradeVo"/>
+        <where>
+            <if test="courseId != null">AND course_id = #{courseId}</if>
+        </where>
+    </select>
+
+    <select id="selectGradeById" parameterType="Long" resultMap="GradeResult">
+        <include refid="selectGradeVo"/>
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateGrade" parameterType="Grade">
+        UPDATE ssry_grade
+        <set>
+            <if test="usualScore != null">usual_score = #{usualScore},</if>
+            <if test="finalScore != null">final_score = #{finalScore},</if>
+            <if test="totalScore != null">total_score = #{totalScore},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
 </mapper>

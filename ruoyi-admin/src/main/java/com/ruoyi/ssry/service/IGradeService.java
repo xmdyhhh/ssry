@@ -7,4 +7,9 @@ import java.util.List;
 
 public interface IGradeService {
     public List<Grade> studentgradelist(String studentid);
+
+    List<Grade> getcourselist(String courseId);
+
+    Grade getGradeById(Long id);
+    int updateGrade(Grade grade);
 }

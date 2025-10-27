@@ -3,6 +3,7 @@ package com.ruoyi.ssry.domain;
 import java.math.BigDecimal;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -10,15 +11,14 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 课程信息对象 course
- * 
- * @author ruoyi
- * @date 2025-10-22
  */
-public class Course extends BaseEntity
-{
+public class Course extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    // 必须添加 teacherName 字段（不是 teachername）
+    // -------------------------------
+    // 新增字段：教师姓名（非数据库字段）
+    // -------------------------------
+    @JsonProperty("teacherName")  // 确保 JSON 输出为 camelCase
     private String teacherName;
 
     public String getTeacherName() {
@@ -28,6 +28,7 @@ public class Course extends BaseEntity
     public void setTeacherName(String teacherName) {
         this.teacherName = teacherName;
     }
+
     /** 主键ID */
     private String id;
 
@@ -69,15 +70,19 @@ public class Course extends BaseEntity
     @Excel(name = "上课星期", readConverterExp = "M=on,,T=ue等")
     private String dayOfWeek;
 
-    /** 开始时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    @Excel(name = "开始时间", width = 30, dateFormat = "yyyy-MM-dd")
-    private Date startTime;
+    /**
+     * 开始时间（数据库为 TIME 类型）
+     * 使用 String 避免 Date 显示为 1970-01-01
+     */
+    @JsonProperty("startTime")
+    private String startTime;
 
-    /** 结束时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    @Excel(name = "结束时间", width = 30, dateFormat = "yyyy-MM-dd")
-    private Date endTime;
+    /**
+     * 结束时间（数据库为 TIME 类型）
+     * 使用 String 避免 Date 显示为 1970-01-01
+     */
+    @JsonProperty("endTime")
+    private String endTime;
 
     /** 教室 */
     @Excel(name = "教室")
@@ -87,165 +92,140 @@ public class Course extends BaseEntity
     @Excel(name = "授课教师ID")
     private String teacherId;
 
-    public void setId(String id) 
-    {
-        this.id = id;
-    }
+    // -------------------- Getter & Setter --------------------
 
-    public String getId() 
-    {
+    public String getId() {
         return id;
     }
 
-    public void setCourseCode(String courseCode) 
-    {
-        this.courseCode = courseCode;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getCourseCode() 
-    {
+    public String getCourseCode() {
         return courseCode;
     }
 
-    public void setCourseName(String courseName) 
-    {
-        this.courseName = courseName;
+    public void setCourseCode(String courseCode) {
+        this.courseCode = courseCode;
     }
 
-    public String getCourseName() 
-    {
+    public String getCourseName() {
         return courseName;
     }
 
-    public void setCredits(BigDecimal credits) 
-    {
-        this.credits = credits;
+    public void setCourseName(String courseName) {
+        this.courseName = courseName;
     }
 
-    public BigDecimal getCredits() 
-    {
+    public BigDecimal getCredits() {
         return credits;
     }
 
-    public void setSemester(String semester) 
-    {
-        this.semester = semester;
+    public void setCredits(BigDecimal credits) {
+        this.credits = credits;
     }
 
-    public String getSemester() 
-    {
+    public String getSemester() {
         return semester;
     }
 
-    public void setMaxEnrollment(Long maxEnrollment) 
-    {
-        this.maxEnrollment = maxEnrollment;
+    public void setSemester(String semester) {
+        this.semester = semester;
     }
 
-    public Long getMaxEnrollment() 
-    {
+    public Long getMaxEnrollment() {
         return maxEnrollment;
     }
 
-    public void setCurrentEnrollment(Long currentEnrollment) 
-    {
-        this.currentEnrollment = currentEnrollment;
+    public void setMaxEnrollment(Long maxEnrollment) {
+        this.maxEnrollment = maxEnrollment;
     }
 
-    public Long getCurrentEnrollment() 
-    {
+    public Long getCurrentEnrollment() {
         return currentEnrollment;
     }
 
-    public void setStartDate(Date startDate) 
-    {
-        this.startDate = startDate;
+    public void setCurrentEnrollment(Long currentEnrollment) {
+        this.currentEnrollment = currentEnrollment;
     }
 
-    public Date getStartDate() 
-    {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setEndDate(Date endDate) 
-    {
-        this.endDate = endDate;
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
     }
 
-    public Date getEndDate() 
-    {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setDayOfWeek(String dayOfWeek) 
-    {
-        this.dayOfWeek = dayOfWeek;
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
-    public String getDayOfWeek() 
-    {
+    public String getDayOfWeek() {
         return dayOfWeek;
     }
 
-    public void setStartTime(Date startTime) 
-    {
-        this.startTime = startTime;
+    public void setDayOfWeek(String dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
     }
 
-    public Date getStartTime() 
-    {
+    // 使用 String 接收 TIME 类型
+    public String getStartTime() {
         return startTime;
     }
 
-    public void setEndTime(Date endTime) 
-    {
-        this.endTime = endTime;
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 
-    public Date getEndTime() 
-    {
+    public String getEndTime() {
         return endTime;
     }
 
-    public void setClassroom(String classroom) 
-    {
-        this.classroom = classroom;
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 
-    public String getClassroom() 
-    {
+    public String getClassroom() {
         return classroom;
     }
 
-    public void setTeacherId(String teacherId) 
-    {
-        this.teacherId = teacherId;
+    public void setClassroom(String classroom) {
+        this.classroom = classroom;
     }
 
-    public String getTeacherId() 
-    {
+    public String getTeacherId() {
         return teacherId;
+    }
+
+    public void setTeacherId(String teacherId) {
+        this.teacherId = teacherId;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("courseCode", getCourseCode())
-            .append("courseName", getCourseName())
-            .append("credits", getCredits())
-            .append("semester", getSemester())
-            .append("maxEnrollment", getMaxEnrollment())
-            .append("currentEnrollment", getCurrentEnrollment())
-            .append("startDate", getStartDate())
-            .append("endDate", getEndDate())
-            .append("dayOfWeek", getDayOfWeek())
-            .append("startTime", getStartTime())
-            .append("endTime", getEndTime())
-            .append("classroom", getClassroom())
-            .append("teacherId", getTeacherId())
-            .append("createTime", getCreateTime())
-            .append("updateTime", getUpdateTime())
-            .toString();
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("id", getId())
+                .append("courseCode", getCourseCode())
+                .append("courseName", getCourseName())
+                .append("credits", getCredits())
+                .append("semester", getSemester())
+                .append("maxEnrollment", getMaxEnrollment())
+                .append("currentEnrollment", getCurrentEnrollment())
+                .append("startDate", getStartDate())
+                .append("endDate", getEndDate())
+                .append("dayOfWeek", getDayOfWeek())
+                .append("startTime", getStartTime())
+                .append("endTime", getEndTime())
+                .append("classroom", getClassroom())
+                .append("teacherId", getTeacherId())
+                .append("createTime", getCreateTime())
+                .append("updateTime", getUpdateTime())
+                .toString();
     }
 }

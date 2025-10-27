@@ -107,27 +107,21 @@
                     }
                 },
                 {
-                    field: 'startTime',
-                    title: '开始时间',
+                    field: 'startDate',
+                    title: '开始日期',
                     formatter: function (value) {
-                        if (!value || value === '1970-01-01') {
-                            return '';
-                        }
-                        return value.substr(11, 5);
+                        return value ? value : '-';
                     }
                 },
                 {
-                    field: 'endTime',
-                    title: '结束时间',
+                    field: 'endDate',
+                    title: '结束日期',
                     formatter: function (value) {
-                        if (!value || value === '1970-01-01') {
-                            return '';
-                        }
-                        return value.substr(11, 5);
+                        return value ? value : '-';
                     }
                 },
-                { field: 'startDate',      title: '开课日期',     width: 100 },
-                { field: 'endDate',        title: '结课日期',     width: 100 },
+                { field: 'startTime',      title: '开课时间',     width: 100 },
+                { field: 'endTime',        title: '结课时间',     width: 100 },
                 { field: 'maxEnrollment',  title: '最大容量',     width: 80 },
                 { field: 'currentEnrollment', title: '已选人数', width: 80 },
                 {
