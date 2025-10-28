@@ -3,10 +3,12 @@ package com.ruoyi.ssry.service.impl;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.ssry.domain.Course;
 import com.ruoyi.ssry.domain.Grade;
 import com.ruoyi.ssry.domain.TJInt;
 import com.ruoyi.ssry.domain.Teacher;
+import com.ruoyi.ssry.mapper.CourseMapper;
 import com.ruoyi.ssry.mapper.GradeMapper;
 import com.ruoyi.ssry.service.ICourseService;
 import com.ruoyi.ssry.service.IGradeService;
@@ -125,4 +127,54 @@ public class IGradeServiceImpl implements IGradeService {
         return success;
     }
 
+//    @Override
+//    public AjaxResult getCourseYearlyAvg(String courseId) {
+//        SysUser user = ShiroUtils.getSysUser();
+//        String loginName = user.getLoginName();
+//        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
+//        List<Course> courses = teacherService.getcourselist(teacher.getId());
+//        ArrayList<String> years = new ArrayList<>();
+//        ArrayList<Float> avgList = new ArrayList<>();
+//        for (Course course : courses){
+//            years.add(gradeMapper.getcourseyear(course.getId(), teacher.getId()));
+//        }
+//        for (Course course : courses){
+//            avgList.add(gradeMapper.getcourseyearavg(course.getId(), teacher.getId()));
+//        }
+//        AjaxResult success = AjaxResult.success();
+//        success.put("years",years);
+//        success.put("avgList",avgList);
+//        return success;
+//    }
+    @Override
+    public AjaxResult getCourseYearlyAvg(String courseId) {
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
+
+        // 如果没传 courseId，则默认查第一个课程
+        if (StringUtils.isEmpty(courseId)) {
+            List<Course> courses = teacherService.getcourselist(teacher.getId());
+            if (courses.isEmpty()) {
+                return AjaxResult.error("该教师未绑定任何课程");
+            }
+            courseId = courses.get(0).getId(); // 取第一个课程
+        }
+
+        // 查询该课程历年平均分（已按年分组）
+        List<Map<String, Object>> yearlyData = gradeMapper.selectYearlyAvgByCourseAndTeacher(courseId, teacher.getId());
+
+        List<String> years = new ArrayList<>();
+        List<Float> avgList = new ArrayList<>();
+
+        for (Map<String, Object> row : yearlyData) {
+            years.add(row.get("year").toString());
+            avgList.add(((BigDecimal) row.get("avgScore")).floatValue()); // AVG 是 BigDecimal
+        }
+
+        AjaxResult result = AjaxResult.success();
+        result.put("years", years);
+        result.put("avgList", avgList);
+        return result;
+    }
 }

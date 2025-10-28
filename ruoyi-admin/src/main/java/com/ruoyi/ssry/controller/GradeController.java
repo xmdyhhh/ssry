@@ -99,4 +99,10 @@ public class GradeController extends BaseController {
         return result;
     }
 
+    @PostMapping("/getCourseYearlyAvg")
+    @ResponseBody
+    public AjaxResult getCourseYearlyAvg(String courseId) {
+        AjaxResult result = gradeService.getCourseYearlyAvg(courseId);
+        return result;
+    }
 }

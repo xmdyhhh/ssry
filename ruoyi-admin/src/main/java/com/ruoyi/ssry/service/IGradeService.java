@@ -18,4 +18,6 @@ public interface IGradeService {
     List<TJInt> tsgradelist(String courseId);
 
     AjaxResult getzhubycourseid(String courseId);
+
+    AjaxResult getCourseYearlyAvg(String courseId);
 }

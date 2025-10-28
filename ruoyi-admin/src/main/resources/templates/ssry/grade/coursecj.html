@@ -6,49 +6,44 @@
 <body class="gray-bg">
 
 <div class="wrapper wrapper-content animated fadeInRight">
+    <!-- 第一行：饼图与折线图 -->
     <div class="row">
         <div class="col-sm-6">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>各分数所占比例</h5>
                     <div class="ibox-tools">
-                        <select id="selectCourse" onchange="selectCourseChanged()"
-                                class="form-control">
-                            <option th:each="item : ${courses}"
-                                    th:value="${item.id}"
-                                    th:text="${item.courseName}"></option>
+                        <select id="selectCourse" onchange="selectCourseChanged()" class="form-control">
+                            <option th:each="item : ${courses}" th:value="${item.id}" th:text="${item.courseName}"></option>
                         </select>
                     </div>
                 </div>
                 <div class="ibox-content">
-                    <div class="echarts" id="echarts1"></div>
+                    <div class="echarts" id="echarts-pie"></div>
                 </div>
             </div>
         </div>
         <div class="col-sm-6">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>柱状图</h5>
-                    <div class="ibox-tools">
-                        <a class="collapse-link">
-                            <i class="fa fa-chevron-up"></i>
-                        </a>
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">
-                            <i class="fa fa-wrench"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-user">
-                            <li><a href="javascript:;">选项1</a>
-                            </li>
-                            <li><a href="javascript:;">选项2</a>
-                            </li>
-                        </ul>
-                        <a class="close-link">
-                            <i class="fa fa-times"></i>
-                        </a>
-                    </div>
+                    <h5>课程历年成绩趋势</h5>
                 </div>
                 <div class="ibox-content">
-                    <div class="echarts" id="echarts-bar-chart"></div>
+                    <div class="echarts" id="echarts-line"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第二行：柱状图 -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>教师所教各课程平均分对比</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="echarts" id="echarts-bar"></div>
                 </div>
             </div>
         </div>
@@ -57,102 +52,103 @@
 
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: echarts-js" />
+
 <script th:inline="javascript">
     var prefix = ctx + "ssry/grade";
-    var chartDom = document.getElementById('echarts1');
-    var myChart = echarts.init(chartDom);
 
-    option = {
-        title: {
-            text: '分数段统计',
-            left: 'center'
-        },
-        tooltip: {
-            trigger: 'item'
-        },
-        legend: {
-            orient: 'vertical',
-            left: 'left'
-        },
-        series: [
-            {
-                name: 'Access From',
-                type: 'pie',
-                radius: '50%',
-                data: [],
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowOffsetX: 0,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
-                    }
-                }
-            }
-        ]
+    // 饼图初始化
+    var chartDomPie = document.getElementById('echarts-pie');
+    var myChartPie = echarts.init(chartDomPie);
+
+    var optionPie = {
+        title: { text: '分数段统计', left: 'center' },
+        tooltip: { trigger: 'item' },
+        legend: { orient: 'vertical', left: 'left' },
+        series: [{
+            name: '分数分布',
+            type: 'pie',
+            radius: '50%',
+            data: [],
+            emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } }
+        }]
     };
+    myChartPie.setOption(optionPie);
 
-    myChart.setOption(option);
-    window.addEventListener('resize', myChart.resize);
+    // 折线图初始化
+    var chartDomLine = document.getElementById('echarts-line');
+    var myChartLine = echarts.init(chartDomLine);
 
-    var chartDombar = document.getElementById('echarts-bar-chart');
-    var myChart2 = echarts.init(chartDombar);
-
-    optionBar = {
-        xAxis: {
-            type: 'category',
-            data: []
-        },
-        yAxis: {
-            type: 'value'
-        },
-        series: [
-            {
-                data: [],
-                type: 'bar',
-                label: {
-                    show: true,
-                    position: 'top',
-                    align: 'center',
-                    verticalAlign: 'bottom',
-                    formatter: '{c}'
-                }
-            }
-        ]
+    var optionLine = {
+        title: { text: '课程历年成绩趋势', left: 'center' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        xAxis: { type: 'category', data: [] },
+        yAxis: { type: 'value', name: '平均分' },
+        series: [{ name: '平均分', type: 'line', data: [], smooth: true, itemStyle: { color: '#1890ff' }, areaStyle: { opacity: 0.1 } }]
     };
+    myChartLine.setOption(optionLine);
 
-    myChart2.setOption(optionBar);
-    window.addEventListener('resize', myChart2.resize);
+    // 柱状图初始化
+    var chartDomBar = document.getElementById('echarts-bar');
+    var myChartBar = echarts.init(chartDomBar);
 
-    // 页面加载完成后执行
-    selectCourseChanged();
+    var optionBar = {
+        title: { text: '教师各课程平均分对比', left: 'center' },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        xAxis: { type: 'category', data: [] },
+        yAxis: { type: 'value', name: '平均分' },
+        series: [{ data: [], type: 'bar', label: { show: true, position: 'top', formatter: '{c}' }, itemStyle: { color: '#5470c6' } }]
+    };
+    myChartBar.setOption(optionBar);
 
-    // 当课程下拉框改变时，重新生成两个图表
+    window.addEventListener('resize', () => {
+        myChartPie.resize();
+        myChartLine.resize();
+        myChartBar.resize();
+    });
+
     function selectCourseChanged() {
-        genChart1();
-        genChart2();
+        genChart1();    // 饼图
+        genChartLine(); // 折线图
+        genChart2();    // 柱状图
     }
 
-    // 生成第一个图表（饼图）
     function genChart1() {
         const courseId = $("#selectCourse").val();
-        option.title.text = "分数段统计-" + $("#selectCourse option:selected").text();
-
         $.ajax({
             url: prefix + '/gradepaibyteachercourse?courseId=' + courseId,
             type: 'post',
             dataType: 'json',
             success: function (data) {
-                option.series[0].data = data.listdata;
-                myChart.setOption(option);
+                optionPie.series[0].data = data.listdata;
+                myChartPie.setOption(optionPie);
             }
         });
     }
 
-    // 生成第二个图表（柱状图）
+    function genChartLine() {
+        const courseId = $("#selectCourse").val();
+        $.ajax({
+            url: prefix + '/getCourseYearlyAvg?courseId=' + courseId,
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                if (data.code === 0) {
+                    optionLine.title.text = '课程历年成绩趋势';
+                    optionLine.xAxis.data = data.years || [];
+                    optionLine.series[0].data = data.avgList || [];
+                    myChartLine.setOption(optionLine);
+                } else {
+                    alert("获取历年数据失败：" + data.msg);
+                }
+            },
+            error: function () {
+                alert("请求失败，请检查网络或接口");
+            }
+        });
+    }
+
     function genChart2() {
         const courseId = $("#selectCourse").val();
-        option.title.text = "分数段统计-" + $("#selectCourse option:selected").text();
-
         $.ajax({
             url: prefix + '/getzhubycourseid?courseId=' + courseId,
             type: 'post',
@@ -160,11 +156,14 @@
             success: function (data) {
                 optionBar.xAxis.data = data.courseNameList;
                 optionBar.series[0].data = data.avgList;
-                myChart2.setOption(optionBar);
+                myChartBar.setOption(optionBar);
             }
         });
     }
 
+    $(function () {
+        selectCourseChanged(); // 页面加载后自动加载图表
+    });
 </script>
 </body>
 </html>

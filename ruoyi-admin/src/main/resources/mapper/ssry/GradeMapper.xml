@@ -128,4 +128,26 @@
         FROM grade
         WHERE grade.graded_by = #{teacherId}
     </select>
+    <select id="getcourseyear" resultType="java.lang.String">
+        SELECT grade.year
+        FROM grade
+        WHERE grade.course_id = #{courseId}
+        AND grade.graded_by = #{teacherId}
+    </select>
+    <select id="getcourseyearavg" resultType="java.lang.Float">
+        SELECT AVG(grade.total_score)
+        FROM grade
+        WHERE grade.course_id = #{courseId}
+        AND grade.graded_by = #{teacherId}
+    </select>
+    <select id="selectYearlyAvgByCourseAndTeacher" resultType="map">
+        SELECT
+            grade.year AS year,
+            AVG(grade.total_score) AS avgScore
+        FROM grade
+        WHERE grade.course_id = #{courseId}
+          AND grade.graded_by = #{teacherId}
+        GROUP BY grade.year
+        ORDER BY grade.year
+    </select>
 </mapper>
