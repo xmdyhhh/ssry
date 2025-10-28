@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class Grade {
     private Long id;
-    private String studentId;
+    private Long studentId;
     private String studentName; // 非数据库字段，用于显示
     private Long courseId;
     private String courseName;  // 非数据库字段
@@ -27,7 +27,7 @@ public class Grade {
     public Grade() {
     }
 
-    public Grade(Double  credits,Long id, String studentId, String studentName, Long courseId, String courseName, BigDecimal usualScore, BigDecimal finalScore, BigDecimal totalScore, String semester, Integer year, Long gradedBy, String teacherName, Date createTime, Date updateTime) {
+    public Grade(Double  credits,Long id, Long studentId, String studentName, Long courseId, String courseName, BigDecimal usualScore, BigDecimal finalScore, BigDecimal totalScore, String semester, Integer year, Long gradedBy, String teacherName, Date createTime, Date updateTime) {
         this.credits = credits;
         this.id = id;
         this.studentId = studentId;
@@ -61,11 +61,11 @@ public class Grade {
         this.id = id;
     }
 
-    public String getStudentId() {
+    public Long getStudentId() {
         return studentId;
     }
 
-    public void setStudentId(String studentId) {
+    public void setStudentId(Long studentId) {
         this.studentId = studentId;
     }
 

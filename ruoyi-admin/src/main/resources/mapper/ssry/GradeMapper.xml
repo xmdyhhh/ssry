@@ -68,9 +68,9 @@
     </resultMap>
 
     <sql id="selectGradeVo">
-        SELECT id, student_name, usual_score, final_score, total_score,
-               semester, year, course_name, course_id
-        FROM ssry_grade
+        SELECT id, student_id, usual_score, final_score, total_score,
+               semester, year, course_id
+        FROM grade
     </sql>
 
     <select id="selectGradeList" resultMap="GradeResult">
@@ -86,11 +86,14 @@
     </select>
 
     <update id="updateGrade" parameterType="Grade">
-        UPDATE ssry_grade
+        UPDATE grade
         <set>
             <if test="usualScore != null">usual_score = #{usualScore},</if>
             <if test="finalScore != null">final_score = #{finalScore},</if>
             <if test="totalScore != null">total_score = #{totalScore},</if>
+            <if test="semester != null">semester = #{semester},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="gradedBy != null">graded_by = #{gradedBy},</if>
         </set>
         WHERE id = #{id}
     </update>

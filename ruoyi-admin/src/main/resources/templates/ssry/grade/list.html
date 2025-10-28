@@ -44,6 +44,49 @@
     </div>
 </div>
 
+<!-- 编辑成绩模态框 -->
+<div class="modal fade" id="editScoreModal" tabindex="-1" role="dialog" aria-labelledby="editScoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editScoreModalLabel">编辑成绩</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editScoreForm">
+                    <input type="hidden" id="editId">
+
+                    <div class="form-group">
+                        <label for="editStudentName">学生姓名</label>
+                        <input type="text" class="form-control" id="editStudentName" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editUsualScore">平时成绩</label>
+                        <input type="number" class="form-control" id="editUsualScore" min="0" max="100" step="0.01" placeholder="请输入0-100之间的分数">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editFinalScore">期末成绩</label>
+                        <input type="number" class="form-control" id="editFinalScore" min="0" max="100" step="0.01" placeholder="请输入0-100之间的分数">
+                    </div>
+
+                    <div class="form-group">
+                        <label>总评成绩（预览）</label>
+                        <input type="text" class="form-control" id="previewTotalScore" disabled placeholder="输入后自动计算">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="saveEdit()">保存修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <th:block th:include="include :: footer" />
 
 <script th:inline="javascript">
@@ -133,7 +176,20 @@
             },
             { field: 'semester', title: '学期', width: 60 },
             { field: 'year', title: '学年', width: 60 },
-            { field: 'courseName', title: '课程名称', width: 150 }
+            { field: 'courseName', title: '课程名称', width: 150 },
+            // 新增：操作列
+            {
+                field: 'actions',
+                title: '操作',
+                width: 120,
+                formatter: function (value, row) {
+                    return `
+        <button class="btn btn-xs btn-primary"
+                onclick="openEditModal(${row.id}, '${row.studentName}', ${row.usualScore || 0}, ${row.finalScore || 0})">
+            <i class="fa fa-edit"></i> 修改评分
+        </button>`;
+                }
+            }
         ];
     }
 
@@ -155,14 +211,14 @@
         $('#bootstrap-table').off('dblclick', '.editable-cell').on('dblclick', '.editable-cell', function () {
             const $cell = $(this);
             const field = $cell.data('field');
-            const rowId = $cell.closest('tr').data('uniqueid'); // 使用 uniqueid 更安全
+            const rowId = $cell.closest('tr').data('uniqueid');
             const currentValue = $cell.text() === '-' ? '' : parseFloat($cell.text());
 
             editScore(rowId, field, currentValue, $cell);
         });
     }
 
-    // 编辑成绩
+    // 编辑成绩（双击）
     function editScore(id, field, currentValue, $cell) {
         const title = field === 'usualScore' ? '平时成绩' : '期末成绩';
 
@@ -173,7 +229,6 @@
                 return false;
             }
 
-            // 显示加载状态
             $cell.addClass('editing').text('保存中...');
 
             $.ajax({
@@ -188,7 +243,6 @@
                     if (res.code === 0) {
                         $.modal.msgSuccess("修改成功");
 
-                        // 更新表格数据
                         const table = $('#bootstrap-table');
                         const row = table.bootstrapTable('getRowByUniqueId', id);
                         if (row) {
@@ -212,7 +266,7 @@
                     $cell.removeClass('editing');
                 }
             });
-        }, currentValue); // 弹窗中默认显示原值
+        }, currentValue);
     }
 
     // 应用权重
@@ -228,17 +282,14 @@
         usualWeight = u;
         finalWeight = f;
 
-        // 保存权重
         try {
             localStorage.setItem(`grade_weights_${courseId}`, JSON.stringify({ usual: u, final: f }));
         } catch (e) {
             console.warn("无法保存权重到 localStorage", e);
         }
 
-        // 通知用户
         $.modal.msgSuccess("权重已更新，总评成绩已重新计算");
 
-        // 仅刷新总评列（高效）
         const table = $('#bootstrap-table');
         table.bootstrapTable('getData').forEach(row => {
             row.totalScore = calculateTotal(row.usualScore, row.finalScore);
@@ -265,6 +316,90 @@
         } catch (e) {
             console.warn("读取权重失败", e);
         }
+    }
+
+    // 打开编辑模态框
+    function openEditModal(id, studentName, usualScore, finalScore) {
+        $('#editId').val(id);
+        $('#editStudentName').val(studentName);
+        $('#editUsualScore').val(usualScore);
+        $('#editFinalScore').val(finalScore);
+
+        // 显示预览
+        updatePreview();
+
+        $('#editScoreModal').modal('show');
+    }
+
+    // 实时更新总评预览
+    function updatePreview() {
+        const usual = parseFloat($('#editUsualScore').val()) || 0;
+        const final = parseFloat($('#editFinalScore').val()) || 0;
+        const total = (usual * usualWeight + final * finalWeight) / 100;
+        $('#previewTotalScore').val(total.toFixed(2));
+    }
+
+    // 绑定输入事件（自动更新预览）
+    $('#editScoreModal').on('input', '#editUsualScore, #editFinalScore', function () {
+        updatePreview();
+    });
+
+    // 保存修改
+    function saveEdit() {
+        const id = $('#editId').val();
+        const usualScore = parseFloat($('#editUsualScore').val());
+        const finalScore = parseFloat($('#editFinalScore').val());
+
+        // 校验
+        if (isNaN(usualScore) || usualScore < 0 || usualScore > 100) {
+            $.modal.alertWarning("平时成绩必须是 0-100 之间的数字");
+            return;
+        }
+        if (isNaN(finalScore) || finalScore < 0 || finalScore > 100) {
+            $.modal.alertWarning("期末成绩必须是 0-100 之间的数字");
+            return;
+        }
+
+        // 禁用按钮，防止重复提交
+        const $btn = $('#editScoreModal .btn-primary').button('loading').text('保存中...');
+
+        $.ajax({
+            url: prefix + '/updategrade',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                id: id,
+                usualScore: usualScore,
+                finalScore: finalScore
+            }),
+            success: function (res) {
+                if (res.code === 0) {
+                    $.modal.msgSuccess("成绩修改成功");
+                    $('#editScoreModal').modal('hide');
+
+                    // 更新表格数据
+                    const table = $('#bootstrap-table');
+                    const row = table.bootstrapTable('getRowByUniqueId', id);
+                    if (row) {
+                        row.usualScore = usualScore;
+                        row.finalScore = finalScore;
+                        row.totalScore = calculateTotal(usualScore, finalScore);
+                        table.bootstrapTable('updateByUniqueId', {
+                            id: id,
+                            row: row
+                        });
+                    }
+                } else {
+                    $.modal.alertError(res.msg || "保存失败");
+                }
+            },
+            error: function () {
+                $.modal.alertError("请求失败，请检查网络连接");
+            },
+            complete: function () {
+                $btn.button('reset').text('保存修改');
+            }
+        });
     }
 </script>
 </body>

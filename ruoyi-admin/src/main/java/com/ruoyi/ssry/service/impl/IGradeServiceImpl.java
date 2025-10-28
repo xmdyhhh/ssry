@@ -32,20 +32,24 @@ public class IGradeServiceImpl implements IGradeService {
 
     @Override
     public int updateGrade(Grade grade) {
-        // 获取原始数据
+        if (grade.getId() == null) {
+            throw new RuntimeException("成绩记录ID不能为空");
+        }
+
         Grade old = gradeMapper.selectGradeById(grade.getId());
         if (old == null) {
             throw new RuntimeException("成绩记录不存在");
         }
 
-        // 校验分数范围：0-100
+        // 校验分数
         validateScore(grade.getUsualScore(), "平时成绩");
         validateScore(grade.getFinalScore(), "期末成绩");
 
-        // 计算总评成绩（假设权重为40%和60%，可从课程表读取）
+        // 使用数据库或课程表中的权重（当前写死为40/60）
         BigDecimal usualWeight = BigDecimal.valueOf(40);
         BigDecimal finalWeight = BigDecimal.valueOf(60);
 
+        // 使用新值或旧值
         BigDecimal usual = grade.getUsualScore() != null ? grade.getUsualScore() : old.getUsualScore();
         BigDecimal finals = grade.getFinalScore() != null ? grade.getFinalScore() : old.getFinalScore();
 
@@ -55,7 +59,6 @@ public class IGradeServiceImpl implements IGradeService {
 
         grade.setTotalScore(total);
 
-        // 更新数据库
         return gradeMapper.updateGrade(grade);
     }
 

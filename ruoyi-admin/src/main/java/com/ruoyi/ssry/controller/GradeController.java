@@ -56,13 +56,14 @@ public class GradeController extends BaseController {
      * 更新成绩（由前端 editScore 调用）
      */
     @PostMapping("/updategrade")
+    @ResponseBody
     @Log(title = "成绩管理", businessType = BusinessType.UPDATE)
     public AjaxResult updateGrade(@RequestBody Grade grade) {
         try {
             gradeService.updateGrade(grade);
-            return success("修改成功");
+            return AjaxResult.success("修改成功");
         } catch (Exception e) {
-            return error(e.getMessage());
+            return AjaxResult.error(e.getMessage());
         }
     }
 }

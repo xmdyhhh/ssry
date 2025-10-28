@@ -60,12 +60,8 @@
                         <div class="hr-line-dashed"></div>
                         <div class="form-group">
                             <div class="col-sm-4 col-sm-offset-2">
-                                <button class="btn btn-primary" type="button" shiro:hasPermission="sendmail" onclick="sendmail()">
-                                    发送
-                                </button>
-                                <button class="btn btn-primary" type="button" onclick="getToken()">
-                                    getToken
-                                </button>
+                                <button class="btn btn-primary" onclick="sendmail()" type="button"  shiro:hasPermission="studentSys:sendmail:send">发送</button>
+                                <button class="btn btn-primary" onclick="sendmail()" type="button" shiro:hasPermission="studentSys:sendmail:getToken" >getToken</button>
                             </div>
                         </div>
                     </form>
