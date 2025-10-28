@@ -68,8 +68,7 @@
     </resultMap>
 
     <sql id="selectGradeVo">
-        SELECT id, student_id, usual_score, final_score, total_score,
-               semester, year, course_id
+        SELECT id, student_id, course_id, usual_score, final_score, total_score, semester, year, graded_by, create_time, update_time
         FROM grade
     </sql>
 
@@ -81,8 +80,27 @@
     </select>
 
     <select id="selectGradeById" parameterType="Long" resultMap="GradeResult">
-        <include refid="selectGradeVo"/>
-        WHERE id = #{id}
+        SELECT
+            g.id,
+            g.student_id,
+            s.name AS studentName,
+            g.course_id,
+            c.course_name AS courseName,
+            c.credits,
+            g.usual_score AS usualScore,
+            g.final_score AS finalScore,
+            g.total_score AS totalScore,
+            g.year,
+            g.semester,
+            g.graded_by AS gradedBy,
+            t.name AS teacherName,
+            g.create_time AS createTime,
+            g.update_time AS updateTime
+        FROM grade g
+                 LEFT JOIN student s ON g.student_id = s.id
+                 LEFT JOIN course c ON g.course_id = c.id
+                 LEFT JOIN teacher t ON g.graded_by = t.id
+        WHERE g.id = #{id}
     </select>
 
     <update id="updateGrade" parameterType="Grade">
@@ -97,4 +115,17 @@
         </set>
         WHERE id = #{id}
     </update>
+
+    <select id="selectRangeByCourseId" resultType="java.lang.Integer">
+        select count(1)
+        from grade
+        where course_id = #{courseId}
+          and grade.total_score &lt; #{to}
+          and grade.total_score >= #{from}
+    </select>
+    <select id="selectAvgByCourseId" resultType="java.lang.Float">
+        SELECT AVG(grade.total_score)
+        FROM grade
+        WHERE grade.graded_by = #{teacherId}
+    </select>
 </mapper>

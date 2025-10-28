@@ -6,12 +6,14 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.ShiroUtils;
-import com.ruoyi.ssry.domain.Grade;
-import com.ruoyi.ssry.domain.Student;
+import com.ruoyi.ssry.domain.*;
+import com.ruoyi.ssry.service.ICourseService;
 import com.ruoyi.ssry.service.IGradeService;
 import com.ruoyi.ssry.service.IStudentService;
+import com.ruoyi.ssry.service.ITeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +26,10 @@ public class GradeController extends BaseController {
     private IGradeService gradeService;
     @Autowired
     private IStudentService studentService;
+    @Autowired
+    private ITeacherService teacherService;
+    @Autowired
+    private ICourseService courseService;
 
     @GetMapping("/studentgrade")
     public String studentgrade() {
@@ -66,4 +72,31 @@ public class GradeController extends BaseController {
             return AjaxResult.error(e.getMessage());
         }
     }
+
+    @GetMapping("/coursecj")
+    public String coursecj(ModelMap mmap) {
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
+        List<Course> courses = teacherService.getcourselist(teacher.getId());
+        mmap.put("courses", courses);
+        return "/ssry/grade/coursecj";
+    }
+
+    @PostMapping("/gradepaibyteachercourse")
+    @ResponseBody
+    public AjaxResult gradepaibyteachercourse(String courseId) {
+        List<TJInt> list = gradeService.tsgradelist(courseId);
+        AjaxResult success = AjaxResult.success();
+        success.put("listdata", list);
+        return success;
+    }
+
+    @PostMapping("/getzhubycourseid")
+    @ResponseBody
+    public AjaxResult getzhubycourseid(String courseId) {
+        AjaxResult result = gradeService.getzhubycourseid(courseId);
+        return result;
+    }
+
 }

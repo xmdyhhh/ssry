@@ -1,19 +1,30 @@
 package com.ruoyi.ssry.service.impl;
 
+import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.ssry.domain.Course;
 import com.ruoyi.ssry.domain.Grade;
+import com.ruoyi.ssry.domain.TJInt;
+import com.ruoyi.ssry.domain.Teacher;
 import com.ruoyi.ssry.mapper.GradeMapper;
+import com.ruoyi.ssry.service.ICourseService;
 import com.ruoyi.ssry.service.IGradeService;
+import com.ruoyi.ssry.service.ITeacherService;
+import com.ruoyi.studentSys.domain.TongJiInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class IGradeServiceImpl implements IGradeService {
 
     @Autowired
     private GradeMapper gradeMapper;
+    @Autowired
+    private ITeacherService teacherService;
 
     @Override
     public List<Grade> studentgradelist(String studentid) {
@@ -45,6 +56,12 @@ public class IGradeServiceImpl implements IGradeService {
         validateScore(grade.getUsualScore(), "平时成绩");
         validateScore(grade.getFinalScore(), "期末成绩");
 
+        // 如果没有提供新分数，不需要重新计算totalScore
+        if (grade.getUsualScore() == null && grade.getFinalScore() == null) {
+            // 只更新其他字段
+            return gradeMapper.updateGrade(grade);
+        }
+
         // 使用数据库或课程表中的权重（当前写死为40/60）
         BigDecimal usualWeight = BigDecimal.valueOf(40);
         BigDecimal finalWeight = BigDecimal.valueOf(60);
@@ -68,4 +85,44 @@ public class IGradeServiceImpl implements IGradeService {
             throw new RuntimeException(name + "必须在0-100之间");
         }
     }
+
+    @Override
+    public List<TJInt> tsgradelist(String courseId) {
+
+        int count90 = gradeMapper.selectRangeByCourseId(courseId,90,101);
+        int count80 = gradeMapper.selectRangeByCourseId(courseId,80,90);
+        int count70 = gradeMapper.selectRangeByCourseId(courseId,70,80);
+        int count60 = gradeMapper.selectRangeByCourseId(courseId,60,70);
+        int count0 = gradeMapper.selectRangeByCourseId(courseId,0,60);
+        List<TJInt> list = new ArrayList<>();
+        list.add(new TJInt("90以上",count90));
+        list.add(new TJInt("80-90",count80));
+        list.add(new TJInt("70-80",count70));
+        list.add(new TJInt("60-70",count60));
+        list.add(new TJInt("60以下",count0));
+        return list;
+    }
+
+    @Autowired
+    private ICourseService courseService;
+
+    @Override
+    public AjaxResult getzhubycourseid(String courseId) {
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
+        List<Course> courses = teacherService.getcourselist(teacher.getId());
+        ArrayList<String> courseNames = new ArrayList<>();
+        ArrayList<Float> avgList = new ArrayList<>();
+        for (Course course : courses) {
+            courseNames.add(course.getCourseName());
+            float avg = gradeMapper.selectAvgByCourseId(teacher.getId());
+            avgList.add(avg);
+        }
+        AjaxResult success = AjaxResult.success();
+        success.put("courseNameList",courseNames);
+        success.put("avgList",avgList);
+        return success;
+    }
+
 }

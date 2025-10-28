@@ -8,7 +8,6 @@ import com.ruoyi.ssry.domain.Course;
 import com.ruoyi.ssry.domain.Student;
 import com.ruoyi.ssry.domain.Teacher;
 import com.ruoyi.ssry.service.IEnrollmentService;
-import com.ruoyi.ssry.service.IScheduleService;
 import com.ruoyi.ssry.service.IStudentService;
 import com.ruoyi.ssry.service.ITeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
