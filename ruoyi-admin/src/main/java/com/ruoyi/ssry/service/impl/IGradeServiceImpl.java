@@ -127,25 +127,6 @@ public class IGradeServiceImpl implements IGradeService {
         return success;
     }
 
-//    @Override
-//    public AjaxResult getCourseYearlyAvg(String courseId) {
-//        SysUser user = ShiroUtils.getSysUser();
-//        String loginName = user.getLoginName();
-//        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
-//        List<Course> courses = teacherService.getcourselist(teacher.getId());
-//        ArrayList<String> years = new ArrayList<>();
-//        ArrayList<Float> avgList = new ArrayList<>();
-//        for (Course course : courses){
-//            years.add(gradeMapper.getcourseyear(course.getId(), teacher.getId()));
-//        }
-//        for (Course course : courses){
-//            avgList.add(gradeMapper.getcourseyearavg(course.getId(), teacher.getId()));
-//        }
-//        AjaxResult success = AjaxResult.success();
-//        success.put("years",years);
-//        success.put("avgList",avgList);
-//        return success;
-//    }
     @Override
     public AjaxResult getCourseYearlyAvg(String courseId) {
         SysUser user = ShiroUtils.getSysUser();

@@ -16,6 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -104,5 +107,31 @@ public class GradeController extends BaseController {
     public AjaxResult getCourseYearlyAvg(String courseId) {
         AjaxResult result = gradeService.getCourseYearlyAvg(courseId);
         return result;
+    }
+
+    @PostMapping("/course-editable")
+    @ResponseBody
+    public AjaxResult isCourseEditable(@RequestParam String courseId) {
+        Course course = courseService.selectCourseById(courseId);
+        if (course == null) {
+            return AjaxResult.error("课程不存在");
+        }
+
+        Date endDate = course.getEndDate();
+        if (endDate == null) {
+            return AjaxResult.success().put("editable", true);
+        }
+
+        LocalDate now = LocalDate.now();
+        LocalDate courseEndDate = endDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        boolean editable = !now.isAfter(courseEndDate);
+
+        return AjaxResult.success()
+                .put("editable", editable)
+                .put("courseName", course.getCourseName())
+                .put("endDate", course.getEndDate());
     }
 }

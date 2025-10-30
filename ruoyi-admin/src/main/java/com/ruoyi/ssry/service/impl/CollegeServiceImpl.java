@@ -94,4 +94,5 @@ public class CollegeServiceImpl implements ICollegeService
     {
         return collegeMapper.deleteCollegeById(id);
     }
+
 }

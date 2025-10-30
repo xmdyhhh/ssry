@@ -1,7 +1,10 @@
 package com.ruoyi.ssry.service;
 
 import java.util.List;
+
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.ssry.domain.Course;
+import com.ruoyi.ssry.domain.CourseAddDTO;
 
 /**
  * 课程信息Service接口
@@ -58,4 +61,6 @@ public interface ICourseService
      * @return 结果
      */
     public int deleteCourseById(String id);
+
+    AjaxResult addCourse(CourseAddDTO dto);
 }

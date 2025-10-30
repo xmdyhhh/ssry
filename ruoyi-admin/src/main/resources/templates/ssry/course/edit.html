@@ -1,168 +1,183 @@
 <!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="include :: header('修改课程信息')" />
     <th:block th:include="include :: datetimepicker-css" />
 </head>
 <body class="white-bg">
-    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-        <form class="form-horizontal m" id="form-course-edit" th:object="${course}">
-            <input name="id" th:field="*{id}" type="hidden">
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">课程编号：</label>
-                    <div class="col-sm-8">
-                        <input name="courseCode" th:field="*{courseCode}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">课程名称：</label>
-                    <div class="col-sm-8">
-                        <input name="courseName" th:field="*{courseName}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">学分：</label>
-                    <div class="col-sm-8">
-                        <input name="credits" th:field="*{credits}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">开课学期：</label>
-                    <div class="col-sm-8">
-                        <input name="semester" th:field="*{semester}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">最大选课人数：</label>
-                    <div class="col-sm-8">
-                        <input name="maxEnrollment" th:field="*{maxEnrollment}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">当前选课人数：</label>
-                    <div class="col-sm-8">
-                        <input name="currentEnrollment" th:field="*{currentEnrollment}" class="form-control" type="text">
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">开课日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="startDate" th:value="${#dates.format(course.startDate, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">结课日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="endDate" th:value="${#dates.format(course.endDate, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">上课星期：</label>
-                    <div class="col-sm-8">
-                        <input name="dayOfWeek" th:field="*{dayOfWeek}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">开始时间：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="startTime" th:value="${#dates.format(course.startTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">结束时间：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="endTime" th:value="${#dates.format(course.endTime, 'yyyy-MM-dd')}" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">教室：</label>
-                    <div class="col-sm-8">
-                        <input name="classroom" th:field="*{classroom}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">授课教师ID：</label>
-                    <div class="col-sm-8">
-                        <input name="teacherId" th:field="*{teacherId}" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <th:block th:include="include :: footer" />
-    <th:block th:include="include :: datetimepicker-js" />
-    <script th:inline="javascript">
-        var prefix = ctx + "ssry/course";
-        $("#form-course-edit").validate({
-            focusCleanup: true
-        });
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-course-edit" th:object="${course}">
+        <input name="id" th:field="*{id}" type="hidden">
 
-        function submitHandler() {
-            if ($.validate.form()) {
-                $.operate.save(prefix + "/edit", $('#form-course-edit').serialize());
-            }
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">课程编号：</label>
+                <div class="col-sm-8">
+                    <input name="courseCode" th:field="*{courseCode}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">课程名称：</label>
+                <div class="col-sm-8">
+                    <input name="courseName" th:field="*{courseName}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">学分：</label>
+                <div class="col-sm-8">
+                    <input name="credits" th:field="*{credits}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">开课学期：</label>
+                <div class="col-sm-8">
+                    <input name="semester" th:field="*{semester}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">最大选课人数：</label>
+                <div class="col-sm-8">
+                    <input name="maxEnrollment" th:field="*{maxEnrollment}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">当前选课人数：</label>
+                <div class="col-sm-8">
+                    <input name="currentEnrollment" th:field="*{currentEnrollment}" class="form-control" type="text">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">开课日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="startDate"
+                               th:value="${#dates.format(course.startDate, 'yyyy-MM-dd')}"
+                               class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">结课日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="endDate"
+                               th:value="${#dates.format(course.endDate, 'yyyy-MM-dd')}"
+                               class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">上课星期：</label>
+                <div class="col-sm-8">
+                    <input name="dayOfWeek" th:field="*{dayOfWeek}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ 开始时间：改为 type="time" -->
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">开始时间：</label>
+                <div class="col-sm-8">
+                    <input name="startTime"
+                           th:value="${course.startTime}"
+                           class="form-control"
+                           type="time"
+                           required />
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ 结束时间：改为 type="time" -->
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">结束时间：</label>
+                <div class="col-sm-8">
+                    <input name="endTime"
+                           th:value="${course.endTime}"
+                           class="form-control"
+                           type="time"
+                           required />
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">教室：</label>
+                <div class="col-sm-8">
+                    <input name="classroom" th:field="*{classroom}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">授课教师ID：</label>
+                <div class="col-sm-8">
+                    <input name="teacherId" th:field="*{teacherId}" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- 引入公共底部和 JS -->
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/course";
+
+    // 表单验证
+    $("#form-course-edit").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-course-edit').serialize());
         }
+    }
 
-        $("input[name='startDate']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
+    // 只为 startDate 和 endDate 初始化日期选择器
+    $("input[name='startDate']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
 
-        $("input[name='endDate']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
-
-        $("input[name='startTime']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
-
-        $("input[name='endTime']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
-    </script>
+    $("input[name='endDate']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+</script>
 </body>
 </html>

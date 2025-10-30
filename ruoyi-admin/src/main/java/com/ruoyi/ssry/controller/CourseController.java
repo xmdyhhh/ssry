@@ -2,17 +2,16 @@ package com.ruoyi.ssry.controller;
 
 import java.util.List;
 
+import com.ruoyi.ssry.domain.College;
+import com.ruoyi.ssry.domain.CourseAddDTO;
 import com.ruoyi.ssry.domain.Teacher;
+import com.ruoyi.ssry.service.ICollegeService;
 import com.ruoyi.ssry.service.ITeacherService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.ssry.domain.Course;
@@ -24,7 +23,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
  * 课程信息Controller
- * 
+ *
  * @author ruoyi
  * @date 2025-10-22
  */
@@ -38,6 +37,8 @@ public class  CourseController extends BaseController
     private ICourseService courseService;
     @Autowired
     private ITeacherService teacherService;
+    @Autowired
+    private ICollegeService collegeService;
 
     @RequiresPermissions("ssry:course:view")
     @GetMapping()
@@ -80,8 +81,10 @@ public class  CourseController extends BaseController
      */
     @RequiresPermissions("ssry:course:add")
     @GetMapping("/add")
-    public String add()
+    public String add(ModelMap mmap)
     {
+        List<College> collegeList = collegeService.selectCollegeList(new College());
+        mmap.put("collegeList", collegeList);
         return prefix + "/add";
     }
 
@@ -92,9 +95,9 @@ public class  CourseController extends BaseController
     @Log(title = "课程信息", businessType = BusinessType.INSERT)
     @PostMapping("/add")
     @ResponseBody
-    public AjaxResult addSave(Course course)
+    public AjaxResult addSave(@RequestBody CourseAddDTO  course)
     {
-        return toAjax(courseService.insertCourse(course));
+        return courseService.addCourse(course);
     }
 
     /**

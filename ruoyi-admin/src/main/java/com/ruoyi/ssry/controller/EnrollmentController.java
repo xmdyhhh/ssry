@@ -5,6 +5,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
 import com.ruoyi.ssry.domain.Course;
+import com.ruoyi.ssry.domain.CourseSettingVO;
 import com.ruoyi.ssry.domain.Student;
 import com.ruoyi.ssry.service.IEnrollmentService;
 import com.ruoyi.ssry.service.IStudentService;
@@ -92,4 +93,10 @@ public class EnrollmentController {
         Student student = studentService.selectStudentBystudentno(loginName);
         return enrollmentService.exitCourse(student.getId(),courseId);
     }
+
+    @PostMapping("/studentenrollment")
+    public String studentenrollment(){
+        return "ssry/enrollment/studentenrollment";
+    }
+
 }

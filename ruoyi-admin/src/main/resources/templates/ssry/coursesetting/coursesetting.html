@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('课程信息列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <!-- 搜索区域 -->
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>课程名称：</label>
+                            <input type="text" name="courseName"/>
+                        </li>
+                        <li>
+                            <label>教师姓名：</label>
+                            <input type="text" name="teacherName"/>
+                        </li>
+                        <li>
+                            <label>学期：</label>
+                            <select name="semester">
+                                <option value="">全部</option>
+                                <option value="春季">春季</option>
+                                <option value="秋季">秋季</option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()">
+                                <i class="fa fa-search"></i>&nbsp;搜索
+                            </a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()">
+                                <i class="fa fa-refresh"></i>&nbsp;重置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!-- 导出权限 -->
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:course:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+            <!-- 添加“设置可选学院”按钮（需权限） -->
+            <a class="btn btn-info"
+               onclick="openSettingAllowedCollegesDialog()"
+               shiro:hasPermission="ssry:course:edit">
+                <i class="fa fa-cog"></i> 设置可选学院
+            </a>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<!-- 引入公共 footer -->
+<th:block th:include="include :: footer"/>
+
+<!-- JS 脚本 -->
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/coursesetting";
+
+    $(function () {
+        $('#bootstrap-table').bootstrapTable('destroy');
+
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/list",
+            method: 'Post',
+            pagination: true,
+            sidePagination: 'client',
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            search: false,
+            showColumns: true,
+            clickToSelect: true,
+            toolbar: '#toolbar',
+            exportDataType: "all",
+            exportTypes: ['excel'],
+            columns: [
+                { checkbox: true },
+                { field: 'courseCode',     title: '课程代码',     width: 100 },
+                { field: 'courseName',     title: '课程名称',     width: 150 },
+                { field: 'semester',       title: '学期',         width: 80 },
+                { field: 'teacherName',    title: '任课教师',     width: 100 },
+                { field: 'startDate',      title: '开始日期' },
+                { field: 'endDate',        title: '结束日期' },
+                { field: 'startTime',      title: '开课时间',     width: 100 },
+                { field: 'endTime',        title: '结课时间',     width: 100 },
+                {
+                    field: 'allowedColleges',
+                    title: '可选学院',
+                    width: 180,
+                    formatter: function (value) {
+                        if (!value || value.trim() === '') {
+                            return '全校可选';
+                        }
+                        return value;
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    width: 180,
+                    formatter: function (value, row) {
+                        return `
+                            <button class="btn btn-warning btn-xs ml-1"
+                                    onclick="editAllowedColleges(${row.id})">
+                                <i class="fa fa-edit"></i> 编辑
+                            </button>`;
+                    }
+                }
+            ],
+            responseHandler: function (res) {
+                console.log("课程列表响应:", res);
+                if (res.code === 0 && Array.isArray(res.data)) {
+                    return res.data;
+                } else {
+                    layer.msg(res.msg || "数据加载失败", { icon: 5 });
+                    return [];
+                }
+            }
+        });
+    });
+
+    // 查看成绩
+    function viewGrades(courseId) {
+        if (!courseId) {
+            layer.msg('课程ID无效', { icon: 2 });
+            return;
+        }
+        const url = ctx + "ssry/grade/tolist?courseId=" + encodeURIComponent(courseId);
+        window.location.href = url;
+    }
+    // 编辑单门课程的可选学院
+    function editAllowedColleges(courseId) {
+        // 创建隐藏表单，POST 跳转
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = ctx + 'ssry/coursesetting/toAllowedColleges';
+        form.style.display = 'none';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'courseIds';
+        input.value = courseId; // 单个 courseId
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+    // 编辑某门课的可选学院（跳转或弹窗）
+    function openSettingAllowedCollegesDialog() {
+        var selected = $('#bootstrap-table').bootstrapTable('getSelections');
+        if (selected.length === 0) {
+            layer.msg('请至少选择一门课程', { icon: 2 });
+            return;
+        }
+
+        var courseIds = selected.map(item => item.id).join(',');
+
+        // 创建一个隐藏表单，用 POST 提交到 toAllowedColleges
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = ctx + 'ssry/coursesetting/toAllowedColleges'; // 必须是 POST 接口
+        form.style.display = 'none';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'courseIds';
+        input.value = courseIds;
+        form.appendChild(input);
+
+        document.body.appendChild(form);
+        form.submit(); // 发起 POST 请求，跳转页面
+    }
+</script>
+
+</body>
+</html>

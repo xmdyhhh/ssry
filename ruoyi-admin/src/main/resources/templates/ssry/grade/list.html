@@ -183,11 +183,67 @@
                 title: '操作',
                 width: 120,
                 formatter: function (value, row) {
-                    return `
-        <button class="btn btn-xs btn-primary"
-                onclick="openEditModal(${row.id}, '${row.studentName}', ${row.usualScore || 0}, ${row.finalScore || 0})">
-            <i class="fa fa-edit"></i> 修改评分
-        </button>`;
+                    // 假设 row.year 是整数，如 2023，表示 2023-2024 学年
+                    const courseStartYear = parseInt(row.year, 10);
+                    if (isNaN(courseStartYear)) {
+                        return '<span class="text-muted">无效年份</span>';
+                    }
+                    const courseEndYear = courseStartYear + 1; // 学年结束年份
+                    const courseSemester = parseInt(row.semester, 10); // 1 或 2
+
+                    // 获取当前时间
+                    const now = new Date();
+                    const currentYear = now.getFullYear();
+                    const currentMonth = now.getMonth() + 1; // 1-12
+                    const currentDay = now.getDate();
+
+                    // 判断当前所处的学期（中国高校常见）
+                    let currentSchoolYearStart;
+                    if (currentMonth >= 9 || currentMonth <= 1) {
+                        // 9月-次年1月：属于前一年开始的学年，如 2024年10月 → 2023-2024 学年
+                        currentSchoolYearStart = currentMonth >= 9 ? currentYear : currentYear - 1;
+                    } else {
+                        // 2月-8月：属于当前年开始的学年，如 2024年6月 → 2023-2024 学年（仍在结束阶段）
+                        currentSchoolYearStart = currentYear - 1;
+                    }
+
+                    // 判断课程是否已经结束
+                    let isCourseEnded = false;
+
+                    if (courseEndYear < currentSchoolYearStart) {
+                        isCourseEnded = true; // 课程学年早于当前学年
+                    } else if (courseEndYear === currentSchoolYearStart) {
+                        // 同一个学年结束年
+                        if (courseSemester === 1) {
+                            // 第一学期一般在1月/2月初结束
+                            if (currentMonth > 2 || (currentMonth === 2 && currentDay > 5)) {
+                                isCourseEnded = true;
+                            }
+                        } else if (courseSemester === 2) {
+                            // 第二学期一般在7月上旬结束
+                            if (currentMonth > 7 || (currentMonth === 7 && currentDay > 10)) {
+                                isCourseEnded = true;
+                            }
+                        }
+                    } else if (courseEndYear > currentSchoolYearStart) {
+                        isCourseEnded = false; // 未来课程
+                    }
+
+                    // 生成按钮
+                    let btnHtml;
+                    if (isCourseEnded) {
+                        btnHtml = `<button class="btn btn-xs btn-secondary" disabled title="课程已结束">
+                <i class="fa fa-ban"></i> 已结束
+            </button>`;
+                    } else {
+                        const studentName = (row.studentName || '').replace(/'/g, "\\'");
+                        btnHtml = `<button class="btn btn-xs btn-primary"
+                    onclick="openEditModal(${row.id}, '${studentName}', ${row.usualScore || 0}, ${row.finalScore || 0})">
+                <i class="fa fa-edit"></i> 修改评分
+            </button>`;
+                    }
+
+                    return btnHtml;
                 }
             }
         ];

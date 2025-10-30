@@ -18,4 +18,5 @@ public interface EnrollmentMapper {
 
     int exitCourse(@Param("studentId") String studentId, @Param("courseId") String courseId);
 
+    void addenrollment(@Param("studentId") String  studentid, @Param("courseId") String courseid,@Param("status") String pending);
 }

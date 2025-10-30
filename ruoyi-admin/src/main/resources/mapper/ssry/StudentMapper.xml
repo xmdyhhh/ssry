@@ -39,6 +39,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectStudentVo"/>
         where id = #{id}
     </select>
+
+    <select id="getStudentsByCollegeId" resultType="com.ruoyi.ssry.domain.Student">
+        SELECT *
+        FROM student
+        WHERE college_id IN
+        <foreach collection="collegeIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="selectStudentBystudentno" resultType="com.ruoyi.ssry.domain.Student">
         select * from student where student_no = #{loginName}
     </select>

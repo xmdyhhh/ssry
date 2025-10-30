@@ -2,6 +2,7 @@ package com.ruoyi.ssry.mapper;
 
 import java.util.List;
 import com.ruoyi.ssry.domain.College;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 学院信息Mapper接口
@@ -9,6 +10,7 @@ import com.ruoyi.ssry.domain.College;
  * @author ruoyi
  * @date 2025-10-22
  */
+@Mapper
 public interface CollegeMapper 
 {
     /**
@@ -58,4 +60,5 @@ public interface CollegeMapper
      * @return 结果
      */
     public int deleteCollegeByIds(String[] ids);
+
 }

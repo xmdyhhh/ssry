@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ssry.mapper.CourseSettingMapper">
+    <select id="list" resultType="com.ruoyi.ssry.domain.CourseSettingVO">
+        SELECT
+            c.id,
+            c.course_code AS courseCode,
+            c.course_name AS courseName,
+            c.start_date AS startDate,
+            c.end_date AS endDate,
+            c.start_time AS startTime,
+            c.end_time AS endTime,
+            c.semester AS semester,
+            t.name AS teacherName,
+            IFNULL(
+                    GROUP_CONCAT(col.college_name SEPARATOR ', '),
+                    ''
+            ) AS allowedColleges
+        FROM course c
+                 LEFT JOIN teacher t ON c.teacher_id = t.id
+                 LEFT JOIN course_allowed_colleges cac ON c.id = cac.course_id
+                 LEFT JOIN college col ON cac.college_id = col.id
+        GROUP BY
+            c.id,
+            c.course_code,
+            c.course_name,
+            c.start_date,
+            c.end_date,
+            c.start_time,
+            c.end_time,
+            c.semester,
+            t.name
+    </select>
+</mapper>

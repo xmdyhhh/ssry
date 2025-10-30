@@ -1,167 +1,358 @@
 <!DOCTYPE html>
-<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="include :: header('新增课程信息')" />
     <th:block th:include="include :: datetimepicker-css" />
+    <!-- 引入 Bootstrap 样式（确保 modal 正常显示） -->
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css"/>
 </head>
 <body class="white-bg">
-    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
-        <form class="form-horizontal m" id="form-course-add">
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">课程编号：</label>
-                    <div class="col-sm-8">
-                        <input name="courseCode" class="form-control" type="text" required>
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-course-add">
+
+        <!-- 原有表单项 -->
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">课程编号：</label>
+                <div class="col-sm-8">
+                    <input name="courseCode" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">课程名称：</label>
+                <div class="col-sm-8">
+                    <input name="courseName" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">学分：</label>
+                <div class="col-sm-8">
+                    <input name="credits" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">开课学期：</label>
+                <div class="col-sm-8">
+                    <input name="semester" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">最大选课人数：</label>
+                <div class="col-sm-8">
+                    <input name="maxEnrollment" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">当前选课人数：</label>
+                <div class="col-sm-8">
+                    <input name="currentEnrollment" class="form-control" type="text" value="0" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">开课日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="startDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">课程名称：</label>
-                    <div class="col-sm-8">
-                        <input name="courseName" class="form-control" type="text" required>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">结课日期：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="endDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">学分：</label>
-                    <div class="col-sm-8">
-                        <input name="credits" class="form-control" type="text" required>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">上课星期：</label>
+                <div class="col-sm-8">
+                    <input name="dayOfWeek" class="form-control" type="text" required placeholder="如：Monday, Tuesday">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">开始时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="startTime" class="form-control" placeholder="HH:mm" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">开课学期：</label>
-                    <div class="col-sm-8">
-                        <input name="semester" class="form-control" type="text" required>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">结束时间：</label>
+                <div class="col-sm-8">
+                    <div class="input-group date">
+                        <input name="endTime" class="form-control" placeholder="HH:mm" type="text" required>
+                        <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">最大选课人数：</label>
-                    <div class="col-sm-8">
-                        <input name="maxEnrollment" class="form-control" type="text" required>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">教室：</label>
+                <div class="col-sm-8">
+                    <input name="classroom" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label is-required">授课教师ID：</label>
+                <div class="col-sm-8">
+                    <input name="teacherId" class="form-control" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============== 设置可选学院 =============== -->
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">可选学院限制：</label>
+                <div class="col-sm-8">
+                    <button type="button" class="btn btn-warning btn-sm" id="btn-select-colleges">
+                        <i class="fa fa-university"></i> 设置可选学院
+                    </button>
+                    <span class="help-block m-b-none">不设置则默认所有学院都可选</span>
+                    <input type="hidden" id="allowedCollegeIds" name="allowedCollegeIds" value="">
+                    <input type="hidden" id="collegeRestricted" name="collegeRestricted" value="false">
+                </div>
+            </div>
+        </div>
+
+        <!-- =============== 已选学院展示区（优化重点）============== -->
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">已选学院：</label>
+                <div class="col-sm-8">
+                    <div id="selectedCollegesDisplay" class="text-muted">
+                        未选择（所有学院可选）
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">当前选课人数：</label>
-                    <div class="col-sm-8">
-                        <input name="currentEnrollment" class="form-control" type="text">
-                    </div>
+        </div>
+
+        <!-- =============== 提交按钮 =============== -->
+        <div class="col-xs-12">
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-8">
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 保存课程</button>
+                    <button type="button" class="btn btn-danger" onclick="closeWin()"><i class="fa fa-close"></i> 关闭</button>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">开课日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="startDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
+        </div>
+
+    </form>
+</div>
+
+<!-- =============== 学院选择模态框 =============== -->
+<div class="modal fade" id="collegeModal" tabindex="-1" role="dialog" aria-labelledby="collegeModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="collegeModalLabel">选择允许选课的学院</h4>
+            </div>
+            <div class="modal-body">
+                <p>请选择该课程允许哪些学院的学生选课：</p>
+                <div id="collegeList" style="max-height: 300px; overflow-y: auto;">
+                    <!-- 动态填充 -->
                 </div>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">结课日期：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="endDate" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveColleges">
+                    <i class="fa fa-check"></i> 确认选择
+                </button>
             </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">上课星期：</label>
-                    <div class="col-sm-8">
-                        <input name="dayOfWeek" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">开始时间：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="startTime" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">结束时间：</label>
-                    <div class="col-sm-8">
-                        <div class="input-group date">
-                            <input name="endTime" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">教室：</label>
-                    <div class="col-sm-8">
-                        <input name="classroom" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label is-required">授课教师ID：</label>
-                    <div class="col-sm-8">
-                        <input name="teacherId" class="form-control" type="text" required>
-                    </div>
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
-    <th:block th:include="include :: footer" />
-    <th:block th:include="include :: datetimepicker-js" />
-    <script th:inline="javascript">
-        var prefix = ctx + "ssry/course"
-        $("#form-course-add").validate({
-            focusCleanup: true
+</div>
+
+<!-- =============== 脚本资源 =============== -->
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: datetimepicker-js" />
+
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/course";
+    const collegeData = /*[[${collegeList}]]*/ [];
+
+    $(function () {
+        // 初始化表单验证
+        $("#form-course-add").validate({ focusCleanup: true });
+
+        // 初始化日期时间选择器
+        initDateTimePickers();
+
+        // 绑定事件
+        bindEvents();
+    });
+
+    function initDateTimePickers() {
+        $("input[name='startDate'], input[name='endDate']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true,
+            todayBtn: true,
+            todayHighlight: true
+        });
+        $("input[name='startTime'], input[name='endTime']").datetimepicker({
+            format: "hh:ii",
+            autoclose: true,
+            startView: 1,
+            minView: 0,
+            maxView: 1,
+            minuteStep: 15
+        });
+    }
+
+    function bindEvents() {
+        // 打开学院选择模态框
+        $('#btn-select-colleges').on('click', loadAndShowCollegeModal);
+
+        // 保存学院选择
+        $('#saveColleges').on('click', function () {
+            const selected = [];
+            const selectedNames = [];
+            $('#collegeList input[type=checkbox]:checked').each(function () {
+                const $cb = $(this);
+                selected.push($cb.val());
+                selectedNames.push($cb.parent().text().trim());
+            });
+
+            $('#allowedCollegeIds').val(JSON.stringify(selected));
+            $('#collegeRestricted').val(selected.length > 0 ? 'true' : 'false');
+
+            // 更新展示
+            const $display = $('#selectedCollegesDisplay');
+            if (selected.length > 0) {
+                const names = selectedNames.length <= 3
+                    ? selectedNames.join(', ')
+                    : selectedNames.slice(0, 3).join(', ') + ` 等 ${selected.length} 个学院`;
+                $display.html(`<span class="label label-success">${names}</span>`);
+            } else {
+                $display.html('<span class="text-muted">未选择（所有学院可选）</span>');
+            }
+
+            $('#collegeModal').modal('hide');
         });
 
-        function submitHandler() {
-            if ($.validate.form()) {
-                $.operate.save(prefix + "/add", $('#form-course-add').serialize());
+        // 表单提交
+        $('#form-course-add').on('submit', function (e) {
+            e.preventDefault();
+            submitHandler();
+        });
+    }
+
+    function loadAndShowCollegeModal() {
+        const $container = $('#collegeList');
+        $container.empty();
+
+        if (!collegeData || collegeData.length === 0) {
+            $container.append('<p class="text-muted">暂无学院数据，请联系管理员。</p>');
+            $('#collegeModal').modal('show');
+            return;
+        }
+
+        const allowedIdsStr = $('#allowedCollegeIds').val();
+        let selectedIds = [];
+        try {
+            selectedIds = allowedIdsStr ? JSON.parse(allowedIdsStr) : [];
+        } catch (e) {
+            selectedIds = [];
+        }
+
+        collegeData.forEach(college => {
+            const isChecked = selectedIds.includes(college.id) ? 'checked' : '';
+            $container.append(`
+                <div class="checkbox" style="margin: 5px 0;">
+                    <label>
+                        <input type="checkbox" value="${college.id}" ${isChecked}>
+                        <strong>${college.collegeName}</strong>
+                    </label>
+                </div>
+            `);
+        });
+
+        $('#collegeModal').modal('show');
+
+        // 滚动到第一个已选学院
+        if (selectedIds.length > 0) {
+            const $first = $container.find(`input[value="${selectedIds[0]}"]`).closest('.checkbox');
+            if ($first.length) $container.scrollTop($first.position().top - 100);
+        }
+    }
+
+    function submitHandler() {
+        if (!$("#form-course-add").valid()) return false;
+
+        const formData = {};
+        $('#form-course-add').serializeArray().forEach(item => {
+            if (formData[item.name]) {
+                if (Array.isArray(formData[item.name])) {
+                    formData[item.name].push(item.value);
+                } else {
+                    formData[item.name] = [formData[item.name], item.value];
+                }
+            } else {
+                formData[item.name] = item.value;
+            }
+        });
+
+        const allowedIdsStr = $('#allowedCollegeIds').val();
+        formData.allowedCollegeIds = [];
+        if (allowedIdsStr) {
+            try {
+                formData.allowedCollegeIds = JSON.parse(allowedIdsStr).map(id => parseInt(id, 10));
+            } catch (e) {
+                console.error("解析 allowedCollegeIds 失败", e);
             }
         }
 
-        $("input[name='startDate']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
+        delete formData[''];
 
-        $("input[name='endDate']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
+        $.ajax({
+            url: prefix + "/add",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function (result) {
+                if (result.code === 0) {
+                    layer.msg("新增成功", { icon: 1, time: 1000 }, function () {
+                        parent.closeWin();
+                    });
+                } else {
+                    layer.msg(result.msg || "操作失败", { icon: 2 });
+                }
+            },
+            error: function () {
+                layer.msg("请求失败，请检查网络", { icon: 2 });
+            }
         });
-
-        $("input[name='startTime']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
-
-        $("input[name='endTime']").datetimepicker({
-            format: "yyyy-mm-dd",
-            minView: "month",
-            autoclose: true
-        });
-    </script>
+    }
+</script>
 </body>
 </html>

@@ -1,0 +1,56 @@
+<!-- src/main/resources/templates/ssry/coursesetting/toAllowedColleges.html -->
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('设置可选学院')"/>
+    <style>
+        .form-control[multiple] { height: 300px; }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <form th:action="@{/ssry/coursesetting/saveAllowedColleges}" method="post">
+        <!-- 隐藏字段：保存 courseIds -->
+        <input type="hidden" name="courseIds" th:value="${courseIds}"/>
+
+        <div class="form-horizontal">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h4>正在为以下课程设置可选学院：</h4>
+                    <ul class="list-group">
+                        <li class="list-group-item" th:each="course : ${courses}">
+                            【<span th:text="${course.courseCode}"></span>】
+                            <span th:text="${course.courseName}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-sm-12">
+                    <label>选择允许选课的学院：</label>
+                    <select name="collegeIds" class="form-control" multiple="multiple">
+                        <option value="">-- 全校可选 --</option>
+                        <option th:each="college : ${allColleges}"
+                                th:value="${college.id}"
+                                th:text="${college.collegeName}"
+                                th:selected="${#lists.contains(selectedCollegeIds, college.id)}">
+                        </option>
+                    </select>
+                    <small class="text-muted">不选表示“全校可选”；多选表示仅这些学院可选。</small>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-sm-12 text-center">
+                    <button type="submit" class="btn btn-primary">保存设置</button>
+                    <a href="javascript:window.history.back()" class="btn btn-secondary">返回</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<th:block th:include="include :: footer"/>
+</body>
+</html>

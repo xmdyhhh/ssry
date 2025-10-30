@@ -2,6 +2,7 @@ package com.ruoyi.ssry.mapper;
 
 import java.util.List;
 import com.ruoyi.ssry.domain.Student;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 学生信息Mapper接口
@@ -60,4 +61,6 @@ public interface StudentMapper
     public int deleteStudentByIds(String[] ids);
 
     Student selectStudentBystudentno(String loginName);
+
+    List<Student> getStudentsByCollegeId(@Param("collegeIds") List<String> collegeIds);
 }

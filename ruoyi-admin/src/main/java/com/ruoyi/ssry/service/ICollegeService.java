@@ -58,4 +58,5 @@ public interface ICollegeService
      * @return 结果
      */
     public int deleteCollegeById(String id);
+
 }

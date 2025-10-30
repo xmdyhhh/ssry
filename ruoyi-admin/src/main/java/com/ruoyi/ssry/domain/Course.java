@@ -2,8 +2,12 @@ package com.ruoyi.ssry.domain;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -18,16 +22,8 @@ public class Course extends BaseEntity {
     // -------------------------------
     // 新增字段：教师姓名（非数据库字段）
     // -------------------------------
-    @JsonProperty("teacherName")  // 确保 JSON 输出为 camelCase
+    @JsonProperty("teacherName")
     private String teacherName;
-
-    public String getTeacherName() {
-        return teacherName;
-    }
-
-    public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
-    }
 
     /** 主键ID */
     private String id;
@@ -92,7 +88,16 @@ public class Course extends BaseEntity {
     @Excel(name = "授课教师ID")
     private String teacherId;
 
-    // -------------------- Getter & Setter --------------------
+    @TableField(exist = false)
+    private List<Long> allowedCollegeIds;
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
 
     public String getId() {
         return id;
@@ -174,7 +179,6 @@ public class Course extends BaseEntity {
         this.dayOfWeek = dayOfWeek;
     }
 
-    // 使用 String 接收 TIME 类型
     public String getStartTime() {
         return startTime;
     }
@@ -205,6 +209,14 @@ public class Course extends BaseEntity {
 
     public void setTeacherId(String teacherId) {
         this.teacherId = teacherId;
+    }
+
+    public List<Long> getAllowedCollegeIds() {
+        return allowedCollegeIds;
+    }
+
+    public void setAllowedCollegeIds(List<Long> allowedCollegeIds) {
+        this.allowedCollegeIds = allowedCollegeIds;
     }
 
     @Override
