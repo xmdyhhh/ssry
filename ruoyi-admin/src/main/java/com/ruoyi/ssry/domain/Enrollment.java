@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Data
-public class CourseAllowedCollege {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Enrollment {
+    private Long id;
+    private String studentId;
     private String courseId;
-    private String collegeId;
+    private String status;
 }

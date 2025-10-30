@@ -141,22 +141,20 @@
     }
     // 编辑单门课程的可选学院
     function editAllowedColleges(courseId) {
-        // 创建隐藏表单，POST 跳转
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = ctx + 'ssry/coursesetting/toAllowedColleges';
-        form.style.display = 'none';
-
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'courseIds';
-        input.value = courseId; // 单个 courseId
-        form.appendChild(input);
-
-        document.body.appendChild(form);
-        form.submit();
+        const url = ctx + 'ssry/coursesetting/toAllowedColleges?courseIds=' + courseId;
+        layer.open({
+            title: '设置可选学院',
+            type: 2,
+            area: ['600px', '500px'],
+            content: url,
+            maxmin: true,
+            end: function () {
+                $('#bootstrap-table').bootstrapTable('refresh');
+            }
+        });
     }
-    // 编辑某门课的可选学院（跳转或弹窗）
+
+    // 批量设置
     function openSettingAllowedCollegesDialog() {
         var selected = $('#bootstrap-table').bootstrapTable('getSelections');
         if (selected.length === 0) {
@@ -165,21 +163,18 @@
         }
 
         var courseIds = selected.map(item => item.id).join(',');
+        const url = ctx + 'ssry/coursesetting/toAllowedColleges?courseIds=' + courseIds;
 
-        // 创建一个隐藏表单，用 POST 提交到 toAllowedColleges
-        const form = document.createElement('form');
-        form.method = 'post';
-        form.action = ctx + 'ssry/coursesetting/toAllowedColleges'; // 必须是 POST 接口
-        form.style.display = 'none';
-
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'courseIds';
-        input.value = courseIds;
-        form.appendChild(input);
-
-        document.body.appendChild(form);
-        form.submit(); // 发起 POST 请求，跳转页面
+        layer.open({
+            title: '批量设置可选学院',
+            type: 2,
+            area: ['600px', '500px'],
+            content: url,
+            maxmin: true,
+            end: function () {
+                $('#bootstrap-table').bootstrapTable('refresh');
+            }
+        });
     }
 </script>
 

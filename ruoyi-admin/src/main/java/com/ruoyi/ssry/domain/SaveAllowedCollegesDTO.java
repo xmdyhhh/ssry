@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
-public class CourseAllowedCollege {
-    private String courseId;
-    private String collegeId;
+public class SaveAllowedCollegesDTO {
+    private Long[] courseIds;
+    private Long[] collegeIds;
 }

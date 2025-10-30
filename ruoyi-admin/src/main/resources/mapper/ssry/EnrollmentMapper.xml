@@ -16,6 +16,25 @@
         SET status = 'PENDING'
         WHERE student_id = #{studentId} AND course_id = #{courseId}
     </update>
+    <delete id="delenrollment">
+        DELETE FROM enrollment
+        WHERE course_id = #{courseId}
+    </delete>
+    <delete id="delByCourseId">
+        DELETE FROM enrollment
+        WHERE course_id = #{courseId}
+    </delete>
+    <delete id="deleteByCourseId">
+        DELETE FROM enrollment
+        WHERE course_id = #{courseId}
+    </delete>
+    <insert id="batchInsertEnrollments">
+        INSERT IGNORE INTO enrollment (student_id, course_id, status)
+        VALUES
+        <foreach collection="enrollments" item="e" separator=",">
+            (#{e.studentId}, #{e.courseId}, #{e.status})
+        </foreach>
+    </insert>
     <!-- 查询已选课程 -->
     <select id="getSelectedCourses" resultType="com.ruoyi.ssry.domain.Course">
         SELECT

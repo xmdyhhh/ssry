@@ -2,6 +2,7 @@ package com.ruoyi.ssry.mapper;
 
 import java.util.List;
 import com.ruoyi.ssry.domain.Student;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -10,6 +11,7 @@ import org.apache.ibatis.annotations.Param;
  * @author ruoyi
  * @date 2025-10-22
  */
+@Mapper
 public interface StudentMapper 
 {
     /**
@@ -54,7 +56,7 @@ public interface StudentMapper
 
     /**
      * 批量删除学生信息
-     * 
+     *
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */

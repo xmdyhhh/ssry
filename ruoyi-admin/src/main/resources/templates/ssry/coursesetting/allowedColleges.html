@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('设置可选学院')" />
+</head>
+<body class="white-bg">
+<!-- 2. 外层容器，与修改学生信息一致 -->
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form id="form-allowed-colleges" class="form-horizontal m">
+
+        <div class="col-xs-12">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">选择允许选课的学院：</label>
+                <div class="col-sm-8">
+                    <div id="collegeList" style="max-height: 300px; overflow-y: auto; padding-left: 10px;">
+                        <!-- 学院列表将通过 AJAX 填充 -->
+                    </div>
+                    <span class="help-block">不勾选表示所有学院都可选</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提交按钮组 -->
+        <div class="col-xs-12">
+            <div class="form-group">
+                <div class="col-sm-offset-3 col-sm-8">
+                    <button type="submit" class="btn btn-primary">保存设置</button>
+                    <button type="button" class="btn btn-danger" onclick="closeWin()">关闭</button>
+                </div>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<!-- 3. 引入通用 footer（含 common.js、layer.js、jquery.validate 等） -->
+<th:block th:include="include :: footer" />
+
+<!-- 4. 引入表单验证 JS -->
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/coursesetting";
+
+    $(function () {
+        // 初始化表单验证
+        $("#form-allowed-colleges").validate({
+            focusCleanup: true
+        });
+
+        // 加载学院列表
+        loadColleges();
+
+        // 获取 courseIds（从 URL 参数）
+        const urlParams = new URLSearchParams(window.location.search);
+        const courseIds = urlParams.get('courseIds');
+        window.courseIds = courseIds ? courseIds.split(',').map(id => parseInt(id)) : [];
+    });
+
+    function loadColleges() {
+        $.get(prefix + "/listColleges", function (result) {
+            if (result.code === 0) {
+                const $container = $('#collegeList');
+                result.data.forEach(college => {
+                    $container.append(`
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="${college.id}">
+                                    ${college.collegeName}
+                                </label>
+                            </div>
+                        `);
+                });
+            } else {
+                // 使用 layer.msg（现在能正常显示！）
+                layer.msg("加载学院失败：" + result.msg, {icon: 5});
+            }
+        }).fail(function () {
+            layer.msg("请求失败，请检查网络", {icon: 2});
+        });
+    }
+
+    // 表单提交
+    $('#form-allowed-colleges').on('submit', function (e) {
+        e.preventDefault();
+
+        // 获取选中的学院 ID
+        const selectedCollegeIds = $('#collegeList input[type=checkbox]:checked').map(function () {
+            return $(this).val();
+        }).get();
+
+        const data = {
+            courseIds: window.courseIds,
+            collegeIds: selectedCollegeIds.length > 0 ? selectedCollegeIds : []
+        };
+
+        $.ajax({
+            url: prefix + "/saveAllowedColleges",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (result) {
+                if (result && result.code === 0) {
+                    // 使用 layer.msg 显示成功
+                    layer.msg("设置成功", {icon: 1, time: 1000}, function () {
+                        // 关闭弹窗
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                        // 刷新父页面表格
+                        if (parent && parent.$.table) {
+                            parent.$.table.refresh();
+                        }
+                    });
+                } else {
+                    layer.msg(result?.msg || "操作失败", {icon: 2});
+                }
+            },
+            error: function () {
+                layer.msg("请求失败，请检查网络", {icon: 2});
+            }
+        });
+    });
+
+    // 关闭按钮
+    function closeWin() {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index);
+    }
+</script>
+</body>
+</html>
