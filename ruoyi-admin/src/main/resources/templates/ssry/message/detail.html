@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>消息详情</title>
+    <th:block th:include="include :: header('消息详情')"/>
+    <style>
+        .detail-box {
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            margin: 15px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #333;
+            width: 80px;
+            display: inline-block;
+        }
+        .detail-content {
+            margin-left: 90px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="detail-box">
+        <div>
+            <span class="detail-label">标题：</span>
+            <span class="detail-content" th:text="${message.title}">标题</span>
+        </div>
+        <hr/>
+        <div>
+            <span class="detail-label">内容：</span>
+            <div class="detail-content" th:utext="${message.content}">内容</div>
+        </div>
+        <hr/>
+        <div>
+            <span class="detail-label">发送者：</span>
+            <span class="detail-content">
+                <span th:if="${message.senderType == 'system'}">系统</span>
+                <span th:if="${message.senderType != 'system'}" th:text="${message.senderName} + ' (' +
+                    (#strings.equals(message.senderType, 'teacher') ? '教师' : '学生') + ')'">发送者</span>
+            </span>
+        </div>
+        <div>
+            <span class="detail-label">类型：</span>
+            <span class="detail-content">
+                <span th:switch="${message.msgType}">
+                    <span th:case="'notice'">通知</span>
+                    <span th:case="'application'">申请</span>
+                    <span th:case="'reply'">回复</span>
+                    <span th:case="*">未知</span>
+                </span>
+            </span>
+        </div>
+        <div>
+            <span class="detail-label">时间：</span>
+            <span class="detail-content" th:text="${#dates.format(message.createTime, 'yyyy-MM-dd HH:mm')}">时间</span>
+        </div>
+        <div th:if="${message.isApplication}">
+            <span class="detail-label">状态：</span>
+            <span class="detail-content">
+                <span th:if="${message.appStatus == 'pending'}" class="label label-warning">待审批</span>
+                <span th:if="${message.appStatus == 'approved'}" class="label label-success">已批准</span>
+                <span th:if="${message.appStatus == 'rejected'}" class="label label-danger">已拒绝</span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+</body>
+</html>

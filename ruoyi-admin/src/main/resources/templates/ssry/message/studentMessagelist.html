@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('消息中心')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <!-- 搜索区域 -->
+        <div class="col-sm-12 search-collapse">
+            <form id="searchForm">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>消息类型：</label>
+                            <select name="msgType">
+                                <option value="">全部</option>
+                                <option value="notice">通知</option>
+                                <option value="application">申请</option>
+                                <option value="reply">回复</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>状态：</label>
+                            <select name="status">
+                                <option value="">全部</option>
+                                <option value="unread">未读</option>
+                                <option value="read">已读</option>
+                            </select>
+                        </li>
+                        <li>
+                            <label>发送者类型：</label>
+                            <select name="senderType">
+                                <option value="">全部</option>
+                                <option value="system">系统</option>
+                                <option value="teacher">教师</option>
+                                <option value="student">学生</option>
+                            </select>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()">
+                                <i class="fa fa-search"></i>&nbsp;搜索
+                            </a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()">
+                                <i class="fa fa-refresh"></i>&nbsp;重置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-info" onclick="markAllAsRead()">
+                <i class="fa fa-check-circle"></i> 全部标记为已读
+            </a>
+            <!-- 可选：导出 -->
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:message:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/message";
+
+    // ========== 全局工具方法 ==========
+    $.table = {
+        search: function () {
+            $('#bootstrap-table').bootstrapTable('refresh');
+        },
+        exportExcel: function () {
+            $('#bootstrap-table').bootstrapTable('export', { type: 'excel' });
+        }
+    };
+
+    $.form = {
+        reset: function () {
+            $('#searchForm')[0].reset();
+            $('#bootstrap-table').bootstrapTable('refresh');
+        }
+    };
+
+    // ========== 页面初始化 ==========
+    $(function () {
+        $('#bootstrap-table').bootstrapTable('destroy');
+
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/studentMessagelist",
+            method: 'post',
+            pagination: true,
+            sidePagination: 'client', // 前端分页
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            search: false,
+            showColumns: true,
+            clickToSelect: true,
+            toolbar: '#toolbar',
+            exportDataType: "all",
+            exportTypes: ['excel'],
+            columns: [
+                {
+                    field: 'isRead',
+                    checkbox: true,
+                    formatter: function (value, row) {
+                        return { checked: value === 1 };
+                    }
+                },
+                {
+                    field: 'title',
+                    title: '标题',
+                    width: 200,
+                    formatter: function (value, row) {
+                        const unreadClass = row.isRead === 0 ? 'font-bold text-danger' : '';
+                        return `<span class="${unreadClass}">${value}</span>`;
+                    }
+                },
+                {
+                    field: 'content',
+                    title: '内容摘要',
+                    formatter: function (value) {
+                        if (!value) return '-';
+                        const text = value.replace(/<[^>]+>/g, '');
+                        return text.length > 50 ? text.substring(0, 50) + '...' : text;
+                    }
+                },
+                {
+                    field: 'senderType',
+                    title: '发送者',
+                    formatter: function (value, row) {
+                        if (value === 'system') return '系统';
+                        if (row.senderName) return `${row.senderName} (${value === 'teacher' ? '教师' : '学生'})`;
+                        return value || '-';
+                    }
+                },
+                {
+                    field: 'msgType',
+                    title: '类型',
+                    formatter: function (value) {
+                        const map = {
+                            'notice': '通知',
+                            'application': '申请',
+                            'reply': '回复'
+                        };
+                        return map[value] || value || '-';
+                    }
+                },
+                {
+                    field: 'appStatus',
+                    title: '申请状态',
+                    visible: false,
+                    formatter: function (value, row) {
+                        if (!row.isApplication) return '-';
+                        const statusMap = {
+                            'pending': '<span class="label label-warning">待审批</span>',
+                            'approved': '<span class="label label-success">已批准</span>',
+                            'rejected': '<span class="label label-danger">已拒绝</span>'
+                        };
+                        return statusMap[value] || value || '-';
+                    }
+                },
+                {
+                    field: 'isRead',
+                    title: '状态',
+                    align: 'center',
+                    formatter: function (value) {
+                        if (value === true) {
+                            return '<span class="label label-success">已读</span>';
+                        } else {
+                            return '<span class="label label-warning">未读</span>';
+                        }
+                    }
+                },
+                {
+                    field: 'createTime',
+                    title: '时间',
+                    sortable: true,
+                    formatter: function (value) {
+                        return value ? value.replace('T', ' ').substring(0, 16) : '-';
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row) {
+                        let html = `<a class="btn btn-xs btn-primary" onclick="viewDetail(${row.id})">
+                                        <i class="fa fa-eye"></i> 查看
+                                    </a>`;
+                        if (row.isRead === 0) {
+                            html += `&nbsp;<a class="btn btn-xs btn-default" onclick="markAsRead(${row.id})">
+                                        <i class="fa fa-check"></i> 标记已读
+                                     </a>`;
+                        }
+                        return html;
+                    }
+                }
+            ],
+            queryParams: function (params) {
+                const formData = $('#searchForm').serializeArray();
+                const query = {};
+                $.each(formData, function (i, field) {
+                    if (field.value !== '') {
+                        query[field.name] = field.value;
+                    }
+                });
+                return query;
+            },
+            responseHandler: function (res) {
+                if (res && res.code === 0) {
+                    return res.data || [];
+                } else {
+                    layer.msg(res?.msg || "加载失败，请稍后重试");
+                    return [];
+                }
+            }
+        });
+    });
+
+    // ========== 消息操作函数 ==========
+    function viewDetail(id) {
+        layer.open({
+            type: 2,
+            title: '消息详情',
+            maxmin: true,
+            shadeClose: true,
+            area: ['600px', '400px'],
+            content: prefix + "/detail/" + id
+        });
+    }
+
+
+    // 先更新数据，再刷新
+    function markAsRead(id) {
+        $.ajax({
+            url: prefix + "/markRead",
+            type: "POST",
+            data: { id: id },
+            success: function (res) {
+                if (res && res.code === 0) {
+                    layer.msg("标记成功");
+
+                    // 获取当前数据
+                    var data = $('#bootstrap-table').bootstrapTable('getData');
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].id === id) {
+                            data[i].isRead = true;
+                            break;
+                        }
+                    }
+
+                    $('#bootstrap-table').bootstrapTable('refresh');
+                } else {
+                    layer.msg(res?.msg || "操作失败");
+                }
+            },
+            error: function () {
+                layer.msg("网络错误，请重试");
+            }
+        });
+    }
+
+
+    function markAllAsRead() {
+        layer.confirm('确定将所有消息标记为已读？', function (index) {
+            $.ajax({
+                url: prefix + "/markAllRead",
+                type: "POST",
+                success: function (res) {
+                    if (res && res.code === 0) {
+                        layer.msg("操作成功");
+
+                        var data = $('#bootstrap-table').bootstrapTable('getData');
+                        for (var i = 0; i < data.length; i++) {
+                            data[i].isRead = true;
+                        }
+
+                        $('#bootstrap-table').bootstrapTable('refresh');
+                    } else {
+                        layer.msg(res?.msg || "操作失败");
+                    }
+                },
+                error: function () {
+                    layer.msg("网络错误，请重试");
+                }
+            });
+            layer.close(index);
+        });
+    }
+</script>
+</body>
+</html>
