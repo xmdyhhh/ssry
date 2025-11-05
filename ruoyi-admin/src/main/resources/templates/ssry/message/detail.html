@@ -23,6 +23,10 @@
             margin-left: 90px;
             line-height: 1.6;
         }
+
+        .action-buttons {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body class="gray-bg">
@@ -41,10 +45,10 @@
         <div>
             <span class="detail-label">发送者：</span>
             <span class="detail-content">
-        <span th:if="${message.senderType == 'system'}">系统</span>
-        <span th:if="${message.senderType == 'teacher'}" th:text="|${#strings.defaultString(message.senderName, '教师')} (教师)|"></span>
-        <span th:if="${message.senderType == 'student'}" th:text="|${#strings.defaultString(message.senderName, '学生')} (学生)|"></span>
-    </span>
+                <span th:if="${message.senderType == 'system'}">系统</span>
+                <span th:if="${message.senderType == 'teacher'}" th:text="|${#strings.defaultString(message.senderName, '教师')} (教师)|"></span>
+                <span th:if="${message.senderType == 'student'}" th:text="|${#strings.defaultString(message.senderName, '学生')} (学生)|"></span>
+            </span>
         </div>
         <div>
             <span class="detail-label">类型：</span>
@@ -61,12 +65,27 @@
             <span class="detail-label">时间：</span>
             <span class="detail-content" th:text="${#dates.format(message.createTime, 'yyyy-MM-dd HH:mm')}">时间</span>
         </div>
-        <div th:if="${message.isApplication}">
+
+        <!-- 状态显示（仅申请） -->
+        <div th:if="${message.msgType == 'application'}">
             <span class="detail-label">状态：</span>
             <span class="detail-content">
                 <span th:if="${message.appStatus == 'pending'}" class="label label-warning">待审批</span>
                 <span th:if="${message.appStatus == 'approved'}" class="label label-success">已批准</span>
                 <span th:if="${message.appStatus == 'rejected'}" class="label label-danger">已拒绝</span>
+            </span>
+        </div>
+
+        <!-- 操作按钮（仅待审批的申请） -->
+        <div th:if="${message.msgType == 'application' && message.appStatus == 'pending'}" class="action-buttons">
+            <span class="detail-label">操作：</span>
+            <span class="detail-content">
+                <form th:action="@{/ssry/message/approve/{id}(id=${message.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-success btn-sm">批准</button>
+                </form>
+                <form th:action="@{/ssry/message/reject/{id}(id=${message.id})}" method="post" style="display:inline; margin-left: 8px;">
+                    <button type="submit" class="btn btn-danger btn-sm">拒绝</button>
+                </form>
             </span>
         </div>
     </div>

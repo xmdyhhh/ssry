@@ -16,6 +16,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           AND receiver_id = #{receiverId}
           AND is_read = false
     </update>
+    <update id="updateAppStatus">
+        UPDATE message
+        SET app_status = #{appStatus}
+        WHERE id = #{id}
+          AND app_status = 'pending'
+    </update>
     <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO message (
         title, content, sender_type, sender_id, sender_name,

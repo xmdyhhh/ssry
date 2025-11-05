@@ -27,4 +27,6 @@ public interface MessageMapper {
     int deleteMessagesBefore(@Param("createTime") Date createTime);
 
     void insert(Message message);
+
+    void updateAppStatus(@Param("id") Long id, @Param("appStatus") String appStatus);
 }

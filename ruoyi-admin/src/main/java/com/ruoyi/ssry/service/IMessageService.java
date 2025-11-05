@@ -32,4 +32,8 @@ public interface IMessageService {
             String receiverType,
             Long receiverId
     );
+
+    void approve(Long id);
+
+    void reject(Long id);
 }

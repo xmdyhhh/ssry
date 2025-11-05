@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -211,5 +212,19 @@ public class MessageController {
         } catch (Exception e) {
             return AjaxResult.error("提交失败：" + e.getMessage());
         }
+    }
+
+    @PostMapping("/approve/{id}")
+    public String approveApplication(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+        messageService.approve(id);
+        redirectAttrs.addFlashAttribute("msg", "申请已批准");
+        return "redirect:/ssry/message/detail/" + id;
+    }
+
+    @PostMapping("/reject/{id}")
+    public String rejectApplication(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+        messageService.reject(id);
+        redirectAttrs.addFlashAttribute("msg", "申请已拒绝");
+        return "redirect:/ssry/message/detail/" + id;
     }
 }

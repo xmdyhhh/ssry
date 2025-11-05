@@ -116,6 +116,17 @@ public class MessageServiceImpl implements IMessageService {
 
         messageMapper.insert(msg);
     }
+
+    @Override
+    public void approve(Long id) {
+        messageMapper.updateAppStatus(id, "approved");
+    }
+
+    @Override
+    public void reject(Long id) {
+        messageMapper.updateAppStatus(id, "rejected");
+    }
+
     private Message buildMessage(String title, String content, String senderType, Long senderId, String senderName,
                                  String receiverType, Long receiverId) {
         Message msg = new Message();
