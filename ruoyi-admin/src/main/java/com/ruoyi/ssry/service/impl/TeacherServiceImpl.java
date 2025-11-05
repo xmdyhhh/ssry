@@ -106,4 +106,9 @@ public class TeacherServiceImpl implements ITeacherService
         return teacherMapper.getcourselist(id);
     }
 
+    @Override
+    public List<Teacher> selectTeachersByCollegeId(Long receiverId) {
+        return teacherMapper.selectTeachersByCollegeIdone(receiverId);
+    }
+
 }

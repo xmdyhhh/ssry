@@ -60,4 +60,6 @@ public interface IStudentService
     public int deleteStudentById(String id);
 
     Student selectStudentBystudentno(String loginName);
+
+    List<Student> selectStudentsByCollegeId(Long receiverId);
 }

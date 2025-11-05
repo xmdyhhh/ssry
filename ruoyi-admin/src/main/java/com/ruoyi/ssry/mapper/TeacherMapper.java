@@ -64,4 +64,6 @@ public interface TeacherMapper
     Teacher selectTeacherByteacherno(String loginName);
 
     List<Course> getcourselist(String id);
+
+    List<Teacher> selectTeachersByCollegeIdone(Long receiverId);
 }

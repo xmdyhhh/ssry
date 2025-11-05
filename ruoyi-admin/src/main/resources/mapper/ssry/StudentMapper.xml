@@ -52,6 +52,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectStudentBystudentno" resultType="com.ruoyi.ssry.domain.Student">
         select * from student where student_no = #{loginName}
     </select>
+    <select id="getStudentsByCollegeIdone" resultType="com.ruoyi.ssry.domain.Student">
+        SELECT *
+        FROM student
+        WHERE college_id = #{receiverId}
+    </select>
 
     <insert id="insertStudent" parameterType="Student" useGeneratedKeys="true" keyProperty="id">
         insert into student

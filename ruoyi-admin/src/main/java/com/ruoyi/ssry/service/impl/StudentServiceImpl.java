@@ -99,4 +99,9 @@ public class StudentServiceImpl implements IStudentService
     public Student selectStudentBystudentno(String loginName) {
         return studentMapper.selectStudentBystudentno(loginName);
     }
+
+    @Override
+    public List<Student> selectStudentsByCollegeId(Long receiverId) {
+        return studentMapper.getStudentsByCollegeIdone(receiverId);
+    }
 }

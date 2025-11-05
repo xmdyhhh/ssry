@@ -61,6 +61,11 @@ public class TeacherController extends BaseController
         return getDataTable(list);
     }
 
+    @GetMapping("tlist")
+    @ResponseBody
+    public AjaxResult tlist(Teacher teacher) {
+        return AjaxResult.success(teacherService.selectTeacherList(teacher));
+    }
     /**
      * 导出教师信息列表
      */

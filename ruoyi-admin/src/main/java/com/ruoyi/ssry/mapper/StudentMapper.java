@@ -65,4 +65,6 @@ public interface StudentMapper
     Student selectStudentBystudentno(String loginName);
 
     List<Student> getStudentsByCollegeId(@Param("collegeIds") List<String> collegeIds);
+
+    List<Student> getStudentsByCollegeIdone(Long receiverId);
 }

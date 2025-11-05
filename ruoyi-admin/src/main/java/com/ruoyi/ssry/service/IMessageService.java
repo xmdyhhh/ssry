@@ -16,4 +16,20 @@ public interface IMessageService {
     boolean markAllMessagesAsRead(String receiverType, String receiverId);
 
     List<Message> adminMessagelist(String id);
+
+    void adminsendMessage(
+            String title, String content,
+            String senderType, Long senderId, String senderName,
+            String receiverType, Long receiverId
+    );
+
+    void sendApplicationMessage(
+            String title,
+            String content,
+            String senderType,
+            Long senderId,
+            String senderName,
+            String receiverType,
+            Long receiverId
+    );
 }

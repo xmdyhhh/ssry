@@ -123,4 +123,93 @@ public class MessageController {
         model.addAttribute("message", message);
         return "ssry/message/detail";
     }
+
+    @GetMapping("/adminsend")
+    public String sendPage(Model model) {
+        // 可选：加载学院列表、教师列表、学生列表（或通过异步接口加载）
+        return "ssry/message/adminsendMessage";
+    }
+
+    @PostMapping("/adminsend")
+    @ResponseBody
+    public AjaxResult sendMessage(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String receiverType,
+            @RequestParam(required = false) Long receiverId) {
+
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Admin admin = adminService.selectAdmin(loginName);
+        Long senderId = Long.parseLong(admin.getId());
+
+        try {
+            messageService.adminsendMessage(
+                    title, content,
+                    "system", senderId, admin.getName(),
+                    receiverType, receiverId
+            );
+            return AjaxResult.success("发送成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.error("发送失败：" + e.getMessage());
+        }
+    }
+    @GetMapping("/studentsend")
+    public String studentsendPage(Model model) {
+        return "ssry/message/studentsendMessage";
+    }
+
+    @GetMapping("/studentApply")
+    public String studentApplyPage() {
+        return "ssry/message/studentApply"; // 前端页面：选择老师 + 填写表单
+    }
+
+    @PostMapping("/studentApply")
+    @ResponseBody
+    public AjaxResult studentApply(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam Long teacherId) { // 目标老师 ID
+
+        SysUser user = ShiroUtils.getSysUser();
+        Student student = studentService.selectStudentBystudentno(user.getLoginName());
+
+        try {
+            messageService.sendApplicationMessage(
+                    title, content,
+                    "student", Long.parseLong(student.getId()), student.getName(),
+                    "teacher", teacherId
+            );
+            return AjaxResult.success("申请已提交");
+        } catch (Exception e) {
+            return AjaxResult.error("提交失败：" + e.getMessage());
+        }
+    }
+    @GetMapping("/teacherApply")
+    public String teacherApplyPage() {
+        return "ssry/message/teacherApply";
+    }
+
+    @PostMapping("/teacherApply")
+    @ResponseBody
+    public AjaxResult teacherApply(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam Long adminId) { // 目标管理员 ID
+
+        SysUser user = ShiroUtils.getSysUser();
+        Teacher teacher = teacherService.selectTeacherByteacherno(user.getLoginName());
+
+        try {
+            messageService.sendApplicationMessage(
+                    title, content,
+                    "teacher", Long.parseLong(teacher.getId()), teacher.getName(),
+                    "admin", adminId
+            );
+            return AjaxResult.success("申请已提交");
+        } catch (Exception e) {
+            return AjaxResult.error("提交失败：" + e.getMessage());
+        }
+    }
 }

@@ -65,6 +65,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                  JOIN teacher t ON c.teacher_id = t.id
         WHERE c.teacher_id = #{id}
     </select>
+    <select id="selectTeachersByCollegeIdone" resultType="com.ruoyi.ssry.domain.Teacher">
+        select *
+        from teacher
+        where college_id = #{receiverId}
+    </select>
 
     <insert id="insertTeacher" parameterType="Teacher" useGeneratedKeys="true" keyProperty="id">
         insert into teacher

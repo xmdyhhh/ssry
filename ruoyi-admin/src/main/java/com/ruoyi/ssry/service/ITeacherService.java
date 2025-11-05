@@ -64,4 +64,6 @@ public interface ITeacherService
     Teacher selectTeacherByteacherno(String loginName);
 
     List<Course> getcourselist(String id);
+
+    List<Teacher> selectTeachersByCollegeId(Long receiverId);
 }

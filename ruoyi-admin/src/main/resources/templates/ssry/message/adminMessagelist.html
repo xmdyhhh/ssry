@@ -11,6 +11,10 @@
             <a class="btn btn-info" onclick="markAllAsRead()">
                 <i class="fa fa-check-circle"></i> 全部标记为已读
             </a>
+            <!-- 新增：跳转按钮 -->
+            <a class="btn btn-primary" href="javascript:void(0)" onclick="goToSendPage()">
+                <i class="fa fa-paper-plane"></i> 发送消息
+            </a>
             <!-- 可选：导出 -->
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:message:export">
                 <i class="fa fa-download"></i> 导出
@@ -27,6 +31,10 @@
 <th:block th:include="include :: footer"/>
 <script th:inline="javascript">
     var prefix = ctx + "ssry/message";
+
+    function goToSendPage() {
+        window.location.href = ctx + "ssry/message/adminsend";
+    }
 
     // ========== 全局工具方法 ==========
     $.table = {
@@ -222,7 +230,6 @@
             }
         });
     }
-
 
     function markAllAsRead() {
         layer.confirm('确定将所有消息标记为已读？', function (index) {

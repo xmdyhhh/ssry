@@ -54,6 +54,12 @@ public class CollegeController extends BaseController
         return getDataTable(list);
     }
 
+    @GetMapping("/listAll")
+    @ResponseBody
+    public AjaxResult listAll() {
+        List<College> list = collegeService.selectCollegeList(new College());
+        return AjaxResult.success(list);
+    }
     /**
      * 导出学院信息列表
      */

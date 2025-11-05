@@ -12,6 +12,9 @@
             <a class="btn btn-info" onclick="markAllAsRead()">
                 <i class="fa fa-check-circle"></i> 全部标记为已读
             </a>
+            <a class="btn btn-primary" href="javascript:void(0);" onclick="goToTeacherApply()">
+                <i class="fa fa-plus"></i> 发起申请
+            </a>
             <!-- 可选：导出 -->
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:message:export">
                 <i class="fa fa-download"></i> 导出
@@ -38,6 +41,20 @@
             $('#bootstrap-table').bootstrapTable('export', { type: 'excel' });
         }
     };
+    function goToTeacherApply() {
+        $.ajax({
+            url: ctx + 'ssry/message/teacherApply',
+            type: 'POST',
+            success: function(res) {
+                // 如果返回的是页面内容，可以直接显示
+                // 或者重定向到新页面
+                window.location.href = ctx + 'ssry/message/teacherApply';
+            },
+            error: function() {
+                layer.msg("请求失败");
+            }
+        });
+    }
 
     $.form = {
         reset: function () {

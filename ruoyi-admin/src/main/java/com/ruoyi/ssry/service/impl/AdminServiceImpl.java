@@ -6,6 +6,8 @@ import com.ruoyi.ssry.service.IAdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AdminServiceImpl implements IAdminService {
 
@@ -15,5 +17,10 @@ public class AdminServiceImpl implements IAdminService {
     @Override
     public Admin selectAdmin(String loginName) {
         return adminMapper.selectAdmin(loginName);
+    }
+
+    @Override
+    public List<Admin> list() {
+        return adminMapper.list();
     }
 }

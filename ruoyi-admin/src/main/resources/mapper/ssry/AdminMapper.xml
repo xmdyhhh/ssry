@@ -7,4 +7,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAdmin" resultType="com.ruoyi.ssry.domain.Admin">
         select * from admin where username=#{loginName}
     </select>
+    <select id="list" resultType="com.ruoyi.ssry.domain.Admin">
+        select * from admin
+    </select>
 </mapper>

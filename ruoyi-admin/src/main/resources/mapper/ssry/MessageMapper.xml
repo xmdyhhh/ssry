@@ -16,6 +16,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
           AND receiver_id = #{receiverId}
           AND is_read = false
     </update>
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO message (
+        title, content, sender_type, sender_id, sender_name,
+        receiver_type, receiver_id, msg_type, is_read, create_time
+        ) VALUES
+        <foreach collection="list" item="msg" separator=",">
+            (#{msg.title}, #{msg.content}, #{msg.senderType}, #{msg.senderId}, #{msg.senderName},
+            #{msg.receiverType}, #{msg.receiverId}, #{msg.msgType}, #{msg.isRead}, #{msg.createTime})
+        </foreach>
+    </insert>
     <select id="selectNoticeByReceiver" resultType="Message">
         SELECT
         id,
@@ -57,4 +67,40 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM message
         WHERE id = #{id}
     </select>
+    <select id="selectadminNoticeByReceiver" resultType="com.ruoyi.ssry.domain.Message">
+        SELECT
+        id,
+        title,
+        content,
+        sender_type AS senderType,
+        sender_id AS senderId,
+        receiver_type AS receiverType,
+        receiver_id AS receiverId,      <!-- 新增 -->
+        sender_name AS senderName,      <!-- 新增 -->
+        msg_type AS msgType,
+        is_application AS isApplication,
+        app_status AS appStatus,
+        admin_remark AS adminRemark,
+        is_read AS isRead,
+        create_time AS createTime
+        FROM message
+        WHERE receiver_type = #{receiverType}
+        AND receiver_id = #{receiverId}
+    </select>
+    <!-- 删除 createTime 早于指定时间的所有消息 -->
+    <delete id="deleteMessagesBefore">
+        DELETE FROM message
+        WHERE create_time &lt; #{createTime}
+    </delete>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO message (
+            title, content, sender_type, sender_id, sender_name,
+            receiver_type, receiver_id, msg_type, is_application,
+            app_status, admin_remark, is_read, create_time
+        ) VALUES (
+                     #{title}, #{content}, #{senderType}, #{senderId}, #{senderName},
+                     #{receiverType}, #{receiverId}, #{msgType}, #{isApplication},
+                     #{appStatus}, #{adminRemark}, #{isRead}, #{createTime}
+                 )
+    </insert>
 </mapper>
