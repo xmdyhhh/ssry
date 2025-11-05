@@ -14,9 +14,8 @@ public interface MessageMapper {
 
     int updateAsRead(Long id);
 
-    int markAllMessageAsRead();
 
     Message selectById(Long id);
 
-//    int insertNotice(Message message);
+    int markAllMessagesAsRead(@Param("receiverType") String receiverType,@Param("receiverId") String receiverId);
 }

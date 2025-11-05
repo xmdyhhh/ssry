@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class MessageService implements IMessageService {
+public class MessageServiceImpl implements IMessageService {
 
     @Autowired
     private MessageMapper messageMapper;
@@ -25,12 +25,22 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public String markAllMessageAsRead() {
-        return messageMapper.markAllMessageAsRead() > 0 ? "success" : "fail";
+    public boolean markAllMessagesAsRead(String receiverType, String receiverId) {
+        return messageMapper.markAllMessagesAsRead(receiverType, receiverId) > 0;
+    }
+
+    @Override
+    public List<Message> adminMessagelist(String id) {
+        return messageMapper.selectNoticeByReceiver("admin",Long.parseLong(id));
     }
 
     @Override
     public Message findById(Long id) {
         return messageMapper.selectById(id);
+    }
+
+    @Override
+    public List<Message> getMessagesForTeacher(String id) {
+        return messageMapper.selectNoticeByReceiver("teacher", Long.parseLong(id));
     }
 }

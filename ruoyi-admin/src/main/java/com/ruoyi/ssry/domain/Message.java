@@ -23,4 +23,6 @@ public class Message {
     private String adminRemark;
     private Boolean isRead;
     private Date createTime;
+    private String senderName;
+    private Long receiverId;
 }

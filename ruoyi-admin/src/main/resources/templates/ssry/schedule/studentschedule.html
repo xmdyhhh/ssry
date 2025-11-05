@@ -74,7 +74,6 @@
                         var day = dayMap[item.dayOfWeek] || '周一'; // 英文转中文
                         var timeSlotIndex = -1;
 
-                        // ✅ 精确匹配时间段：比较 startTime 和 endTime
                         for (var i = 0; i < lessons.length; i++) {
                             if (lessons[i].start === item.startTime.slice(0, 5) &&
                                 lessons[i].end === item.endTime.slice(0, 5)) {

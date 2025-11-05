@@ -17,6 +17,8 @@
         <result property="dayOfWeek"         column="day_of_week"/>
         <result property="startTime"         column="start_time"/>
         <result property="endTime"           column="end_time"/>
+        <result property="startWeek"         column="start_week" jdbcType="TINYINT" javaType="Integer"/>
+        <result property="endWeek"           column="end_week"   jdbcType="TINYINT" javaType="Integer"/>
         <result property="classroom"         column="classroom"/>
         <result property="teacherId"         column="teacher_id"/>
         <result property="createTime"        column="create_time"/>
@@ -24,7 +26,7 @@
     </resultMap>
 
     <sql id="selectCourseVo">
-        select id, course_code, course_name, credits, semester, max_enrollment, current_enrollment, start_date, end_date, day_of_week, start_time, end_time, classroom, teacher_id, create_time, update_time from course
+        select id, course_code, course_name, credits, semester, max_enrollment, current_enrollment, start_date, end_date, day_of_week, start_time, end_time, start_week,end_week,classroom, teacher_id, create_time, update_time from course
     </sql>
 
     <select id="selectCourseList" parameterType="Course" resultMap="CourseResult">

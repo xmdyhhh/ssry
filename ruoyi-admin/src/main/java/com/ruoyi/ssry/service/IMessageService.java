@@ -9,7 +9,11 @@ public interface IMessageService {
 
     boolean markMessageAsRead(Long id);
 
-    String markAllMessageAsRead();
-
     Message findById(Long id);
+
+    List<Message> getMessagesForTeacher(String id);
+
+    boolean markAllMessagesAsRead(String receiverType, String receiverId);
+
+    List<Message> adminMessagelist(String id);
 }

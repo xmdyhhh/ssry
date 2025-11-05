@@ -80,6 +80,11 @@ public class Course extends BaseEntity {
     @JsonProperty("endTime")
     private String endTime;
 
+    @JsonProperty("startWeek")
+    private Integer startWeek;
+
+    @JsonProperty("endWeek")
+    private Integer endWeek;
     /** 教室 */
     @Excel(name = "教室")
     private String classroom;

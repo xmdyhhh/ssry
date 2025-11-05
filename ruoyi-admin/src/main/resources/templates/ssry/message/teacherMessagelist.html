@@ -6,6 +6,7 @@
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
+
         <!-- 工具栏 -->
         <div class="btn-group-sm" id="toolbar" role="group">
             <a class="btn btn-info" onclick="markAllAsRead()">
@@ -50,7 +51,7 @@
         $('#bootstrap-table').bootstrapTable('destroy');
 
         $('#bootstrap-table').bootstrapTable({
-            url: prefix + "/studentMessagelist",
+            url: prefix + "/teacherMessagelist",
             method: 'post',
             pagination: true,
             sidePagination: 'client', // 前端分页

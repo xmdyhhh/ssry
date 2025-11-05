@@ -3,10 +3,14 @@ package com.ruoyi.ssry.controller;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.ssry.domain.Admin;
 import com.ruoyi.ssry.domain.Message;
 import com.ruoyi.ssry.domain.Student;
+import com.ruoyi.ssry.domain.Teacher;
+import com.ruoyi.ssry.service.IAdminService;
 import com.ruoyi.ssry.service.IMessageService;
 import com.ruoyi.ssry.service.IStudentService;
+import com.ruoyi.ssry.service.ITeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +26,10 @@ public class MessageController {
     private IMessageService messageService;
     @Autowired
     private IStudentService studentService;
+    @Autowired
+    private ITeacherService teacherService;
+    @Autowired
+    private IAdminService adminService;
 
     @PostMapping("/studentMessagelist")
     @ResponseBody
@@ -38,6 +46,36 @@ public class MessageController {
         return "ssry/message/studentMessagelist";
     }
 
+    @PostMapping("/teacherMessagelist")
+    @ResponseBody
+    public AjaxResult teacherMessagelist() {
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
+        List<Message> messages = messageService.getMessagesForTeacher(teacher.getId());
+        return AjaxResult.success(messages);
+    }
+
+    @GetMapping("/teacherMessage")
+    public String teacherMessage() {
+        return "ssry/message/teacherMessagelist";
+    }
+
+    @PostMapping("/adminMessagelist")
+    @ResponseBody
+    public AjaxResult adminMessagelist() {
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Admin admin = adminService.selectAdmin(loginName);
+        List<Message> messages = messageService.adminMessagelist(admin.getId());
+        return AjaxResult.success(messages);
+    }
+
+    @GetMapping("/adminMessage")
+    public String adminMessage() {
+        return "ssry/message/adminMessagelist";
+    }
+
     @PostMapping("/markRead")
     @ResponseBody
     public AjaxResult markRead(@RequestParam Long id) {
@@ -51,8 +89,21 @@ public class MessageController {
 
     @PostMapping("/markAllRead")
     @ResponseBody
-    public AjaxResult markAllRead() {
-        return AjaxResult.success(messageService.markAllMessageAsRead());
+    public AjaxResult markAllRead() { // 不再需要 @RequestParam Long id
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
+        if (teacher != null) {
+            boolean result = messageService.markAllMessagesAsRead("teacher", teacher.getId());
+            return result ? AjaxResult.success("标记成功") : AjaxResult.error("标记失败");
+        } else {
+            Student student = studentService.selectStudentBystudentno(loginName);
+            if (student != null) {
+                boolean result = messageService.markAllMessagesAsRead("student", student.getId());
+                return result ? AjaxResult.success("标记成功") : AjaxResult.error("标记失败");
+            }
+        }
+        return AjaxResult.error("用户类型未知");
     }
 
     @GetMapping("/detail/{id}")

@@ -6,47 +6,54 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateAsRead">
         UPDATE message
         SET is_read = true
-        WHERE id = #{id}
+        WHERE id=#{id}
+          AND is_read = false
     </update>
-    <update id="markAllMessageAsRead">
+    <update id="markAllMessagesAsRead">
         UPDATE message
         SET is_read = true
-        WHERE msg_type = 'notice'
+        WHERE receiver_type = #{receiverType}
+          AND receiver_id = #{receiverId}
+          AND is_read = false
     </update>
     <select id="selectNoticeByReceiver" resultType="Message">
         SELECT
-            id,
-            title,
-            content,
-            sender_type AS senderType,
-            sender_id AS senderId,
-            receiver_type AS receiverType,
-            msg_type AS msgType,
-            is_application AS isApplication,
-            app_status AS appStatus,
-            admin_remark AS adminRemark,
-            is_read AS isRead,
-            create_time AS createTime
+        id,
+        title,
+        content,
+        sender_type AS senderType,
+        sender_id AS senderId,
+        receiver_type AS receiverType,
+        receiver_id AS receiverId,      <!-- 新增 -->
+        sender_name AS senderName,      <!-- 新增 -->
+        msg_type AS msgType,
+        is_application AS isApplication,
+        app_status AS appStatus,
+        admin_remark AS adminRemark,
+        is_read AS isRead,
+        create_time AS createTime
         FROM message
         WHERE receiver_type = #{receiverType}
-          AND receiver_id = #{receiverId}
-          AND msg_type = 'notice'
+        AND receiver_id = #{receiverId}
         ORDER BY create_time DESC
     </select>
+
     <select id="selectById" resultType="com.ruoyi.ssry.domain.Message">
         SELECT
-            id,
-            title,
-            content,
-            sender_type AS senderType,
-            sender_id AS senderId,
-            receiver_type AS receiverType,
-            msg_type AS msgType,
-            is_application AS isApplication,
-            app_status AS appStatus,
-            admin_remark AS adminRemark,
-            is_read AS isRead,
-            create_time AS createTime
+        id,
+        title,
+        content,
+        sender_type AS senderType,
+        sender_id AS senderId,
+        receiver_type AS receiverType,
+        receiver_id AS receiverId,      <!-- 新增 -->
+        sender_name AS senderName,      <!-- 新增 -->
+        msg_type AS msgType,
+        is_application AS isApplication,
+        app_status AS appStatus,
+        admin_remark AS adminRemark,
+        is_read AS isRead,
+        create_time AS createTime
         FROM message
         WHERE id = #{id}
     </select>
