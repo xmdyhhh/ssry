@@ -177,6 +177,12 @@ public class MessageServiceImpl implements IMessageService {
 
         messageMapper.insert(msg);
     }
+
+    @Override
+    public void removeByIds(List<Long> ids) {
+        messageMapper.removeByIds(ids);
+    }
+
     private Message buildMessage(String title, String content, String senderType, Long senderId, String senderName,
                                  String receiverType, Long receiverId) {
         Message msg = new Message();

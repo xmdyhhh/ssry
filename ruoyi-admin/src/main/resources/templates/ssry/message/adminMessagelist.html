@@ -15,6 +15,9 @@
             <a class="btn btn-primary" href="javascript:void(0)" onclick="goToSendPage()">
                 <i class="fa fa-paper-plane"></i> 发送消息
             </a>
+            <a class="btn btn-danger" onclick="deleteSelectedReadMessages()">
+                <i class="fa fa-trash"></i> 删除选中（仅已读）
+            </a>
             <!-- 可选：导出 -->
             <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:message:export">
                 <i class="fa fa-download"></i> 导出
@@ -52,7 +55,52 @@
             $('#bootstrap-table').bootstrapTable('refresh');
         }
     };
+    function deleteSelectedReadMessages() {
+        // 获取所有选中的行
+        const selections = $('#bootstrap-table').bootstrapTable('getSelections');
 
+        if (selections.length === 0) {
+            layer.msg("请先选择要删除的消息");
+            return;
+        }
+
+        // 过滤出已读的消息（假设 isRead === 1 或 true 表示已读）
+        const readMessages = selections.filter(row => row.isRead === 1 || row.isRead === true);
+        const unreadCount = selections.length - readMessages.length;
+
+        if (readMessages.length === 0) {
+            layer.msg("所选消息均为未读，无法删除");
+            return;
+        }
+
+        let confirmMsg = `确定删除 ${readMessages.length} 条已读消息？`;
+        if (unreadCount > 0) {
+            confirmMsg += `\n（已自动忽略 ${unreadCount} 条未读消息）`;
+        }
+
+        layer.confirm(confirmMsg, {icon: 3, title: '确认删除'}, function (index) {
+            const ids = readMessages.map(row => row.id);
+
+            $.ajax({
+                url: prefix + "/deleteByIds",
+                type: "POST",
+                traditional: true, // 支持数组传参
+                data: {ids: ids},
+                success: function (res) {
+                    if (res && res.code === 0) {
+                        layer.msg("删除成功");
+                        $('#bootstrap-table').bootstrapTable('refresh');
+                    } else {
+                        layer.msg(res?.msg || "删除失败");
+                    }
+                },
+                error: function () {
+                    layer.msg("网络错误，请重试");
+                }
+            });
+            layer.close(index);
+        });
+    }
     // ========== 页面初始化 ==========
     $(function () {
         $('#bootstrap-table').bootstrapTable('destroy');
@@ -72,11 +120,8 @@
             exportTypes: ['excel'],
             columns: [
                 {
-                    field: 'isRead',
-                    checkbox: true,
-                    formatter: function (value, row) {
-                        return { checked: value === 1 };
-                    }
+                    field: '_checked',
+                    checkbox: true
                 },
                 {
                     field: 'title',
@@ -158,11 +203,6 @@
                         let html = `<a class="btn btn-xs btn-primary" onclick="viewDetail(${row.id})">
                                         <i class="fa fa-eye"></i> 查看
                                     </a>`;
-                        if (row.isRead === 0) {
-                            html += `&nbsp;<a class="btn btn-xs btn-default" onclick="markAsRead(${row.id})">
-                                        <i class="fa fa-check"></i> 标记已读
-                                     </a>`;
-                        }
                         return html;
                     }
                 }

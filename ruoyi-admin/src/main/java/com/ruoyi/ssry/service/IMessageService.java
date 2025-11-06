@@ -41,4 +41,6 @@ public interface IMessageService {
     void sendReplyFromSystem(String title, String content, String toType, Long teacherId,String appStatue);
 
     void sendReplyFromTeacher(String title, String content, String toType, Long studentId, String appStatue);
+
+    void removeByIds(List<Long> ids);
 }

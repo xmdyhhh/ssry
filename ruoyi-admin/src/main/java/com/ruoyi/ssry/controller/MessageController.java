@@ -278,4 +278,11 @@ public class MessageController {
         redirectAttrs.addFlashAttribute("msg", "申请已拒绝");
         return "redirect:/ssry/message/detail/" + id;
     }
+
+    @PostMapping("/deleteByIds")
+    @ResponseBody
+    public AjaxResult deleteByIds(@RequestParam List<Long> ids) {
+        messageService.removeByIds(ids);
+        return AjaxResult.success();
+    }
 }

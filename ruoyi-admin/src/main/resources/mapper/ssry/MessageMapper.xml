@@ -93,6 +93,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         WHERE receiver_type = #{receiverType}
         AND receiver_id = #{receiverId}
     </select>
+    <delete id="removeByIds">
+        DELETE FROM message
+        WHERE id IN
+        <foreach item="id" collection="ids" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
     <!-- 删除 createTime 早于指定时间的所有消息 -->
     <delete id="deleteMessagesBefore">
         DELETE FROM message

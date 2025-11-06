@@ -29,4 +29,6 @@ public interface MessageMapper {
     void insert(Message message);
 
     void updateAppStatus(@Param("id") Long id, @Param("appStatus") String appStatus);
+
+    void removeByIds(@Param("ids") List<Long> ids);
 }
