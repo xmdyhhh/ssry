@@ -76,17 +76,63 @@
             </span>
         </div>
 
-        <!-- 操作按钮（仅待审批的申请） -->
+        <!-- 在操作按钮区域下方添加两个 Modal -->
         <div th:if="${message.msgType == 'application' && message.appStatus == 'pending'}" class="action-buttons">
             <span class="detail-label">操作：</span>
             <span class="detail-content">
-                <form th:action="@{/ssry/message/approve/{id}(id=${message.id})}" method="post" style="display:inline;">
-                    <button type="submit" class="btn btn-success btn-sm">批准</button>
-                </form>
-                <form th:action="@{/ssry/message/reject/{id}(id=${message.id})}" method="post" style="display:inline; margin-left: 8px;">
-                    <button type="submit" class="btn btn-danger btn-sm">拒绝</button>
-                </form>
-            </span>
+        <!-- 批准按钮触发模态框 -->
+        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#approveModal">批准</button>
+                <!-- 拒绝按钮触发模态框 -->
+        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#rejectModal" style="margin-left: 8px;">拒绝</button>
+    </span>
+        </div>
+
+        <!-- 批准模态框 -->
+        <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">填写批准说明</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <form th:action="@{/ssry/message/approve/{id}(id=${message.id})}" method="post">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>批准说明（将发送给申请人）：</label>
+                                <textarea name="reason" class="form-control" rows="3" placeholder="例如：同意你的实习申请，请按时报到。" required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-success">确认批准</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 拒绝模态框 -->
+        <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">填写拒绝理由</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <form th:action="@{/ssry/message/reject/{id}(id=${message.id})}" method="post">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>拒绝理由（将发送给申请人）：</label>
+                                <textarea name="reason" class="form-control" rows="3" placeholder="请说明拒绝原因..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-danger">确认拒绝</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

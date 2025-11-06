@@ -1,14 +1,20 @@
 package com.ruoyi.ssry.service.impl;
 
+import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.ShiroUtils;
+import com.ruoyi.ssry.domain.Admin;
 import com.ruoyi.ssry.domain.Message;
 import com.ruoyi.ssry.domain.Student;
 import com.ruoyi.ssry.domain.Teacher;
 import com.ruoyi.ssry.mapper.MessageMapper;
+import com.ruoyi.ssry.service.IAdminService;
 import com.ruoyi.ssry.service.IMessageService;
 import com.ruoyi.ssry.service.IStudentService;
 import com.ruoyi.ssry.service.ITeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,6 +31,8 @@ public class MessageServiceImpl implements IMessageService {
     private IStudentService studentService;
     @Autowired
     private ITeacherService teacherService;
+    @Autowired
+    private IAdminService adminService;
 
     @Override
     public List<Message> getMessagesForStudent(String id) {
@@ -127,6 +135,48 @@ public class MessageServiceImpl implements IMessageService {
         messageMapper.updateAppStatus(id, "rejected");
     }
 
+    // 推荐重载或新增方法
+    public void sendReplyFromSystem(String title, String content, String toType, Long toId,String appStatue) {
+        Message msg = new Message();
+        msg.setTitle(title);
+        msg.setContent(content);
+        msg.setSenderType("system");
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Admin admin = adminService.selectAdmin(loginName);
+        msg.setSenderId(Long.parseLong(admin.getId()));
+        msg.setSenderName("系统通知");
+        msg.setReceiverType(toType);
+        msg.setReceiverId(toId);
+        msg.setMsgType("reply");
+        msg.setIsApplication(false);
+        msg.setAppStatus(appStatue);
+        msg.setIsRead(false);
+        msg.setCreateTime(new Date());
+
+        messageMapper.insert(msg);
+    }
+
+    public void sendReplyFromTeacher(String title, String content, String toType,Long studentId,String appStatue) {
+        Message msg = new Message();
+        msg.setTitle(title);
+        msg.setContent(content);
+        msg.setSenderType("teacher");
+        SysUser user = ShiroUtils.getSysUser();
+        String loginName = user.getLoginName();
+        Teacher teacher = teacherService.selectTeacherByteacherno(loginName);
+        msg.setSenderId(Long.parseLong(teacher.getId()));
+        msg.setSenderName(teacher.getName());
+        msg.setReceiverType("student");
+        msg.setReceiverId(studentId);
+        msg.setMsgType("reply");
+        msg.setIsApplication(false);
+        msg.setAppStatus(appStatue);
+        msg.setIsRead(false);
+        msg.setCreateTime(new Date());
+
+        messageMapper.insert(msg);
+    }
     private Message buildMessage(String title, String content, String senderType, Long senderId, String senderName,
                                  String receiverType, Long receiverId) {
         Message msg = new Message();
@@ -142,4 +192,5 @@ public class MessageServiceImpl implements IMessageService {
         msg.setCreateTime(new Date());
         return msg;
     }
+
 }

@@ -215,15 +215,66 @@ public class MessageController {
     }
 
     @PostMapping("/approve/{id}")
-    public String approveApplication(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+    public String approveApplication(
+            @PathVariable Long id,
+            @RequestParam String reason, // 新增参数
+            RedirectAttributes redirectAttrs) {
+
+        Message original = messageService.findById(id);
+        if (!"pending".equals(original.getAppStatus()) || !original.getIsApplication()) {
+            throw new IllegalArgumentException("非待审批申请");
+        }
+
+        // 更新原申请状态
         messageService.approve(id);
+
+        // 发送带说明的回复
+        if ("admin".equals(original.getReceiverType())) {
+            messageService.sendReplyFromSystem(
+                    "申请已批准", reason, // 使用用户输入的 reason
+                    original.getSenderType(), original.getSenderId(), "approve"
+            );
+        } else if ("teacher".equals(original.getReceiverType())) {
+            messageService.sendReplyFromTeacher(
+                    "申请已批准", reason, // 使用用户输入的 reason
+                    original.getSenderType(), original.getSenderId(), "approve"
+            );
+        } else {
+            throw new IllegalStateException("未知的接收者类型: " + original.getReceiverType());
+        }
+
         redirectAttrs.addFlashAttribute("msg", "申请已批准");
         return "redirect:/ssry/message/detail/" + id;
     }
-
     @PostMapping("/reject/{id}")
-    public String rejectApplication(@PathVariable Long id, RedirectAttributes redirectAttrs) {
+    public String rejectApplication(
+            @PathVariable Long id,
+            @RequestParam String reason, // 新增参数
+            RedirectAttributes redirectAttrs) {
+
+        Message original = messageService.findById(id);
+        if (!"pending".equals(original.getAppStatus()) || !original.getIsApplication()) {
+            throw new IllegalArgumentException("非待审批申请");
+        }
+
+        // 更新状态为 rejected
         messageService.reject(id);
+
+        // 发送拒绝理由
+        if ("admin".equals(original.getReceiverType())) {
+            messageService.sendReplyFromSystem(
+                    "申请未获批准", reason,
+                    original.getSenderType(), original.getSenderId(), "reject"
+            );
+        } else if ("teacher".equals(original.getReceiverType())) {
+            messageService.sendReplyFromTeacher(
+                    "申请未获批准", reason,
+                    original.getSenderType(), original.getSenderId(), "reject"
+            );
+        } else {
+            throw new IllegalStateException("未知的接收者类型");
+        }
+
         redirectAttrs.addFlashAttribute("msg", "申请已拒绝");
         return "redirect:/ssry/message/detail/" + id;
     }

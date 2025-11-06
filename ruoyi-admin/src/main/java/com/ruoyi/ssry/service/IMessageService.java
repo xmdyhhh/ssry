@@ -36,4 +36,9 @@ public interface IMessageService {
     void approve(Long id);
 
     void reject(Long id);
+
+
+    void sendReplyFromSystem(String title, String content, String toType, Long teacherId,String appStatue);
+
+    void sendReplyFromTeacher(String title, String content, String toType, Long studentId, String appStatue);
 }
