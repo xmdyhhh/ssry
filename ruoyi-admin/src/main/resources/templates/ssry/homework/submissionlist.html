@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>作业提交列表</title>
+    <th:block th:include="include :: header('作业提交列表')" />
+    <style>
+        body { padding: 20px; }
+        .container-div {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status-submitted { color: green; }
+        .status-late { color: orange; }
+        .file-link { color: #007bff; text-decoration: underline; cursor: pointer; }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" >
+                <i class="fa fa-download"></i> 导出 Excel
+            </a>
+            <!-- 直接加一个“发送提醒”按钮 -->
+            <a class="btn btn-info ml-2" onclick="sendReminder()" >
+                <i class="fa fa-bell"></i> 发送未提交提醒
+            </a>
+        </div>
+        <!-- 表格 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<!-- 评分模态框 -->
+<div class="modal fade" id="scoreModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">评分与评语</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="scoreForm">
+                    <input type="hidden" id="submissionId" />
+                    <div class="form-group">
+                        <label>评分（0-100）</label>
+                        <input type="number" class="form-control" id="scoreInput" min="0" max="100" step="0.01" required />
+                    </div>
+                    <div class="form-group">
+                        <label>评语</label>
+                        <textarea class="form-control" id="commentInput" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-success" onclick="submitScore()">保存评分</button>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/submission";
+    var homeworkId; // 改为 homeworkId
+
+    function getUrlParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+    }
+
+    // 获取 homeworkId，不是 courseId！
+    homeworkId = getUrlParam('homeworkId');
+    if (!homeworkId) {
+        $.modal.alertError("缺少作业ID");
+        throw new Error("Missing homeworkId");
+    }
+
+    $(function () {
+        initTable();
+    });
+
+    function initTable() {
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/getsubmissionlist",
+            method: 'get',
+            pagination: true,
+            sidePagination: 'client',
+            pageSize: 10,
+            pageList: [10, 20, 50],
+            search: true,
+            showColumns: true,
+            toolbar: '#toolbar',
+            uniqueId: 'id',
+            queryParams: function (params) {
+                // 把 homeworkId 加入请求参数
+                return {
+                    ...params,
+                    homeworkId: homeworkId
+                };
+            },
+            columns: [
+                { checkbox: true },
+                { field: 'studentName', title: '学生姓名' },
+                { field: 'studentNo', title: '学号' },
+                {
+                    field: 'fileName',
+                    title: '文件名',
+                    formatter: function(value, row) {
+                        if (value && row.fileUrl) {
+                            return `<a href="${ctx}${row.fileUrl}" target="_blank">${value}</a>`;
+                        }
+                        return '-';
+                    }
+                },
+                {
+                    field: 'submitTime',
+                    title: '提交时间',
+                    formatter: function(value) {
+                        return value ? value.replace('T', ' ').substring(0, 16) : '-';
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    formatter: function(value) {
+                        if (value === 'submitted') {
+                            return '<span class="text-success">已提交</span>';
+                        } else if (value === 'late') {
+                            return '<span class="text-warning">迟交</span>';
+                        } else if (value === 'not_submitted' || value == null || value === '') {
+                            return '<span class="text-danger">未提交</span>';
+                        } else {
+                            // 兜底：直接显示原始值（调试用）
+                            return '<span>' + (value || '未提交') + '</span>';
+                        }
+                    }
+                },
+                { field: 'score', title: '评分', formatter: function(v){ return v != null ? v.toFixed(2) : '-'; } },
+                { field: 'teacherComment', title: '评语', formatter: function(v){ return v || '-'; } },
+                {
+                    field: 'operate',
+                    title: '操作',
+                    formatter: function(value, row) {
+                        return '<a class="btn btn-primary btn-xs" href="javascript:void(0)" onclick="openScoreModal(' + row.id + ')">修改评分评语</a>';
+                    }
+                }
+            ],
+            responseHandler: function (res) {
+                if (res && res.code === 0) {
+                    // 显示未提交人数
+                    const notSubmit = res.notSubmitCount || 0;
+                    $('#notSubmitCount').text(notSubmit);
+                    $('#notSubmitAlert').toggle(notSubmit > 0); // 仅当有人未提交时显示
+
+                    // 返回表格数据
+                    if (Array.isArray(res.data)) {
+                        return res.data;
+                    }
+                }
+                $.modal.alertError(res?.msg || "数据加载失败");
+                $('#notSubmitAlert').hide();
+                return [];
+            },
+            onLoadError: function (status, xhr) {
+                console.error("Load Error:", status, xhr);
+                $.modal.alertError("请求失败，请检查网络或权限");
+            }
+        });
+    }
+    function sendReminder() {
+        if (!homeworkId) {
+            $.modal.alertError("作业ID缺失，无法发送通知");
+            return;
+        }
+
+        $.modal.confirm("确定要向所有未提交作业的学生发送提醒通知吗？", function() {
+            $.ajax({
+                url: prefix + "/sendReminder",
+                type: "POST",
+                data: {homeworkId: homeworkId},
+                success: function(res) {
+                    if (res.code === 0) {
+                        $.modal.msgSuccess("通知已发送！");
+                    } else {
+                        $.modal.alertError(res.msg || "发送失败");
+                    }
+                },
+                error: function() {
+                    $.modal.alertError("网络错误，请重试");
+                }
+            });
+        });
+    }
+    // 全局变量暂存当前要评分的记录ID
+    var currentSubmissionId = null;
+
+    function openScoreModal(submissionId) {
+        currentSubmissionId = submissionId;
+        var table = $('#bootstrap-table');
+        var row = table.bootstrapTable('getRowByUniqueId', submissionId);
+
+        if (row) {
+            $('#scoreInput').val(row.score || '');
+            $('#commentInput').val(row.teacherComment || '');
+        } else {
+            $('#scoreInput').val('');
+            $('#commentInput').val('');
+        }
+
+        $('#scoreModal').modal('show');
+    }
+
+    function submitScore() {
+        var score = $('#scoreInput').val();
+        var comment = $('#commentInput').val().trim();
+
+        if (score === '' || isNaN(score) || score < 0 || score > 100) {
+            $.modal.alertWarning("请输入有效的评分（0-100）");
+            return;
+        }
+
+        $.ajax({
+            url: prefix + "/updateScore",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify({
+                id: currentSubmissionId,
+                score: parseFloat(score),
+                teacherComment: comment
+            }),
+            success: function(res) {
+                if (res.code === 0) {
+                    $.modal.msgSuccess("评分保存成功！");
+                    $('#scoreModal').modal('hide');
+                    $('#bootstrap-table').bootstrapTable('refresh');
+                } else {
+                    $.modal.alertError(res.msg || "保存失败");
+                }
+            },
+            error: function() {
+                $.modal.alertError("网络错误，请重试");
+            }
+        });
+    }
+</script>
+</body>
+</html>

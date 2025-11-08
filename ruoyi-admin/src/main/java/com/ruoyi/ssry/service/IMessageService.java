@@ -43,4 +43,6 @@ public interface IMessageService {
     void sendReplyFromTeacher(String title, String content, String toType, Long studentId, String appStatue);
 
     void removeByIds(List<Long> ids);
+
+    void sendRemider(String id, String title,Long teacherId,String teacherName);
 }

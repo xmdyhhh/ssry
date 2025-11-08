@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ssry.mapper.HomeworkSubmissionMapper">
+    <insert id="addnullSubmission">
+        insert into homework_submission (homework_id, student_id, status, file_url, file_name, create_time, update_time)
+        values (#{homeworkId}, #{studentId}, 'not_submitted', '', '', now(), now())
+    </insert>
+    <update id="updateScore">
+        update homework_submission
+        set score = #{score},
+            teacher_comment = #{teacherComment}
+        where id = #{id}
+    </update>
+    <delete id="deleteByHomeworkId">
+        delete from homework_submission
+        where homework_id = #{homeworkId}
+    </delete>
+    <select id="getSubmissionsByhomeworkId" resultType="com.ruoyi.ssry.domain.HomeworkSubmission">
+        select homework_submission.id,
+               homework_id as homeworkId,
+               student_id as studentId,
+               student.name as studentName,
+               student.student_no as studentNo,
+               file_url as fileUrl,
+               file_name as fileName,
+               submit_time as submitTime,
+               homework_submission.status as status,
+               teacher_comment as teacherComment,
+               score as score,
+               homework_submission.create_time as createTime,
+               homework_submission.update_time as updateTime
+        from homework_submission
+        left join student on homework_submission.student_id = student.id
+        where homework_id = #{homeworkId}
+    </select>
+    <select id="countSubmittedByHomeworkId" resultType="java.lang.Long">
+        select count(1)
+        from homework_submission
+        where homework_id = #{homeworkId}
+          and (status = ' submitted') or (status = 'late')
+    </select>
+    <select id="getStudentListByHomeworkId" resultType="com.ruoyi.ssry.domain.Student">
+        select student.id,
+               student.name as name,
+               student.student_no as studentNo,
+               student.sex as sex,
+               student.birth_date as birthDate,
+               student.email as email,
+               student.phonenumber as phonenumber,
+               student.major as major,
+               student.grade as grade,
+               student.college_id as collegeId,
+               student.status as status,
+               student.password as password,
+               student.avatar as avatar
+        from homework_submission
+        left join student on homework_submission.student_id = student.id
+        where homework_id = #{homeworkId}
+    </select>
+</mapper>

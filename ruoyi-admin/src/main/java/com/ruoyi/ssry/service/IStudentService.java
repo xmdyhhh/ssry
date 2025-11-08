@@ -51,15 +51,9 @@ public interface IStudentService
      */
     public int deleteStudentByIds(String ids);
 
-    /**
-     * 删除学生信息信息
-     * 
-     * @param id 学生信息主键
-     * @return 结果
-     */
-    public int deleteStudentById(String id);
-
     Student selectStudentBystudentno(String loginName);
 
     List<Student> selectStudentsByCollegeId(Long receiverId);
+
+    List<Student> selectStudentByCourseId(Long courseId);
 }

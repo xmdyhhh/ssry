@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('作业列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <!-- 搜索区域（可选，作业一般不搜，可简化或移除） -->
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>作业标题：</label>
+                            <input type="text" name="title"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()">
+                                <i class="fa fa-search"></i>&nbsp;搜索
+                            </a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()">
+                                <i class="fa fa-refresh"></i>&nbsp;重置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:homework:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/submission"; // 改为 submission 路径
+
+    $(function () {
+        $('#bootstrap-table').bootstrapTable('destroy');
+
+        // 从 URL 获取 courseId
+        var urlParams = new URLSearchParams(window.location.search);
+        var courseId = urlParams.get('courseId');
+
+        if (!courseId) {
+            layer.msg('缺少课程ID', {icon: 2});
+            return;
+        }
+
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/gethomeworklist",   // 对应 @GetMapping("/gethomeworklist")
+            method: 'get',                      // 必须用 GET
+            queryParams: function(params) {
+                // 合并分页/搜索参数（如有） + courseId
+                return {
+                    ...params,
+                    courseId: courseId
+                };
+            },
+            pagination: true,
+            sidePagination: 'server', // 建议改为 server，如果后端支持分页；若不支持可保留 client
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            search: false,
+            showColumns: true,
+            toolbar: '#toolbar',
+            exportDataType: "all",
+            exportTypes: ['excel'],
+            columns: [
+                { field: 'title', title: '作业标题', width: 200 },
+                { field: 'content', title: '作业内容', width: 300, formatter: function(v) { return v || '-'; } },
+                { field: 'courseId', title: '课程ID', width: 100 },
+                {
+                    field: 'issueDate',
+                    title: '发布日期',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'dueDate',
+                    title: '截止日期',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'dueTime',
+                    title: '截止时间',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'requiredFormat',
+                    title: '格式要求',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'maxSizeMb',
+                    title: '最大大小(MB)',
+                    formatter: function(v) { return v ? v + ' MB' : '-'; }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row) {
+                        return `
+            <a class="btn btn-xs btn-info" href="${ctx}ssry/submission/submissionlist?homeworkId=${row.id}">
+                <i class="fa fa-upload"></i> 查看提交状况
+            </a>
+            <a class="btn btn-xs btn-danger" onclick="deleteHomework('${row.id}', '${row.title}')">
+                <i class="fa fa-trash"></i> 删除
+            </a>`;
+                    }
+                }
+            ],
+            responseHandler: function(res) {
+                console.log("Homework Response:", res);
+                if (res.code === 0 && Array.isArray(res.data)) {
+                    return {
+                        rows: res.data,      // bootstrapTable 期望的数据字段（server 分页）
+                        total: res.data.length // 如果是 client 分页，total 可省略
+                    };
+                } else {
+                    layer.msg(res.msg || "加载作业失败");
+                    return { rows: [], total: 0 };
+                }
+            }
+        });
+    });
+    function deleteHomework(homeworkId, title) {
+        if (!homeworkId) {
+            layer.msg('无效的作业ID', {icon: 2});
+            return;
+        }
+
+        layer.confirm(`确定要删除作业 “${title}” 吗？此操作不可恢复！`, {
+            icon: 3,
+            title: '删除确认'
+        }, function(index) {
+            $.ajax({
+                url: ctx + "ssry/homework/deletehomework/" + homeworkId,
+                type: "DELETE",
+                success: function(res) {
+                    if (res.code === 0) {
+                        layer.msg('删除成功！', {icon: 1});
+                        $('#bootstrap-table').bootstrapTable('refresh');
+                    } else {
+                        layer.msg(res.msg || '删除失败', {icon: 2});
+                    }
+                },
+                error: function() {
+                    layer.msg('网络错误，请重试', {icon: 2});
+                }
+            });
+            layer.close(index);
+        });
+    }
+</script>
+</body>
+</html>

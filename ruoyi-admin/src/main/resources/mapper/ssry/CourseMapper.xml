@@ -41,6 +41,18 @@
         <include refid="selectCourseVo"/>
         where id = #{id}
     </select>
+    <select id="selectenrolledCourseBystudentId" resultType="com.ruoyi.ssry.domain.Course">
+        select course.id, course.course_code, course.course_name, course.credits, course.semester, course.max_enrollment, course.current_enrollment, course.start_date, course.end_date, course.day_of_week, course.start_time, course.end_time, course.start_week, course.end_week, course.classroom, course.teacher_id, course.create_time, course.update_time
+        from course
+        left join enrollment on course.id = enrollment.course_id
+        where enrollment.student_id = #{studentId}
+        AND enrollment.status = 'enrolled';
+    </select>
+    <select id="selectCourseByteacherId" resultType="com.ruoyi.ssry.domain.Course">
+        select course.id, course.course_code, course.course_name, course.credits, course.semester, course.max_enrollment, course.current_enrollment, course.start_date, course.end_date, course.day_of_week, course.start_time, course.end_time, course.start_week, course.end_week, course.classroom, course.teacher_id, course.create_time, course.update_time
+        from course
+        where course.teacher_id = #{teacherId}
+    </select>
 
     <insert id="insertCourse" parameterType="com.ruoyi.ssry.domain.Course"
             useGeneratedKeys="true" keyProperty="id">

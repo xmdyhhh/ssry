@@ -83,18 +83,6 @@ public class StudentServiceImpl implements IStudentService
         return studentMapper.deleteStudentByIds(Convert.toStrArray(ids));
     }
 
-    /**
-     * 删除学生信息信息
-     * 
-     * @param id 学生信息主键
-     * @return 结果
-     */
-    @Override
-    public int deleteStudentById(String id)
-    {
-        return studentMapper.deleteStudentById(id);
-    }
-
     @Override
     public Student selectStudentBystudentno(String loginName) {
         return studentMapper.selectStudentBystudentno(loginName);
@@ -104,4 +92,10 @@ public class StudentServiceImpl implements IStudentService
     public List<Student> selectStudentsByCollegeId(Long receiverId) {
         return studentMapper.getStudentsByCollegeIdone(receiverId);
     }
+
+    @Override
+    public List<Student> selectStudentByCourseId(Long courseId) {
+        return studentMapper.getStudentsByCourseId(courseId);
+    }
+
 }

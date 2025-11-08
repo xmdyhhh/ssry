@@ -183,6 +183,12 @@ public class MessageServiceImpl implements IMessageService {
         messageMapper.removeByIds(ids);
     }
 
+    @Override
+    public void sendRemider(String studentId, String title,Long teacherId,String teacherName) {
+        String content = "作业：" + title + ",请及时完成。";
+        messageMapper.sendRemider(studentId, content, teacherId, teacherName);
+    }
+
     private Message buildMessage(String title, String content, String senderType, Long senderId, String senderName,
                                  String receiverType, Long receiverId) {
         Message msg = new Message();

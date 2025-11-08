@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.ssry.mapper.HomeworkMapper">
+    <resultMap id="BaseResultMap" type="com.ruoyi.ssry.domain.Homework">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="courseId" column="course_id"/>
+        <result property="issueDate" column="issue_date"/>
+        <result property="dueDate" column="due_date"/>
+        <result property="dueTime" column="due_time"/>
+        <result property="requiredFormat" column="required_format"/>
+        <result property="maxSizeMb" column="max_size_mb"/>
+        <result property="createdBy" column="created_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="courseName" column="course_name"/>
+    </resultMap>
+    <insert id="addHomework" parameterType="Homework" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO homework (
+            title, content, course_id, issue_date, due_date, due_time,
+            required_format, max_size_mb, created_by, create_time, update_time
+        ) VALUES (
+                     #{title}, #{content}, #{courseId}, #{issueDate}, #{dueDate}, #{dueTime},
+                     #{requiredFormat}, #{maxSizeMb}, #{createdBy}, #{createTime}, #{updateTime}
+                 )
+    </insert>
+    <delete id="deleteHomeworkById">
+        DELETE FROM homework
+        WHERE id = #{id}
+    </delete>
+    <select id="selectHomeworkByCourseIds" resultMap="BaseResultMap">
+        SELECT homework.* , course.course_name
+        FROM homework
+        left join course on homework.course_id = course.id
+        WHERE course_id IN
+        <foreach collection="courseIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY due_date DESC, due_time DESC
+    </select>
+    <select id="selectHomeworkByCourseId" resultMap="BaseResultMap">
+        SELECT *
+        FROM homework
+        WHERE course_id = #{courseId}
+    </select>
+    <select id="getCourseIdByHomeworkId" resultType="java.lang.Long">
+        SELECT course_id
+        FROM homework
+        WHERE id = #{id}
+    </select>
+    <select id="selectHomeworkById" resultType="com.ruoyi.ssry.domain.Homework">
+        SELECT *
+        FROM homework
+        WHERE id = #{id}
+    </select>
+</mapper>

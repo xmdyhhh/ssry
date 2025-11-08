@@ -55,6 +55,10 @@ spring:
   messages:
     # 国际化资源文件路径
     basename: static/i18n/messages
+  multipart:
+    enabled: true
+    max-file-size: 50MB   # 根据 homework.maxSizeMb 调整
+    max-request-size: 50MB
   jackson:
     time-zone: GMT+8
     date-format: yyyy-MM-dd HH:mm:ss

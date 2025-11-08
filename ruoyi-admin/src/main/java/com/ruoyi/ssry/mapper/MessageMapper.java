@@ -31,4 +31,6 @@ public interface MessageMapper {
     void updateAppStatus(@Param("id") Long id, @Param("appStatus") String appStatus);
 
     void removeByIds(@Param("ids") List<Long> ids);
+
+    void sendRemider(@Param("receiverId") String studentId,@Param("content") String  content,@Param("senderId") Long teacherId,@Param("senderName") String teacherName);
 }

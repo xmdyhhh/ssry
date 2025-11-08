@@ -67,4 +67,8 @@ public interface StudentMapper
     List<Student> getStudentsByCollegeId(@Param("collegeIds") List<String> collegeIds);
 
     List<Student> getStudentsByCollegeIdone(Long receiverId);
+
+    long countByCourseId(Long courseId);
+
+    List<Student> getStudentsByCourseId(Long courseId);
 }

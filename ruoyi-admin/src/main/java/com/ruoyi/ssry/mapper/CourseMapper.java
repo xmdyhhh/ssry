@@ -5,6 +5,7 @@ import java.util.List;
 import com.ruoyi.ssry.domain.Course;
 import com.ruoyi.ssry.domain.CourseAddDTO;
 import com.ruoyi.ssry.domain.CourseAllowedCollege;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -13,6 +14,7 @@ import org.apache.ibatis.annotations.Param;
  * @author ruoyi
  * @date 2025-10-22
  */
+@Mapper
 public interface CourseMapper {
 
     /**
@@ -70,4 +72,8 @@ public interface CourseMapper {
      * @return 影响的行数
      */
     int batchInsertAllowedColleges(@Param("list") List<CourseAllowedCollege> relations);
+
+    List<Course> selectenrolledCourseBystudentId(String studentId);
+
+    List<Course> selectCourseByteacherId(String id);
 }

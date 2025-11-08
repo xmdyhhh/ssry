@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('我的作业列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <!-- 搜索区域（可选，作业一般不搜，可简化或移除） -->
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>作业标题：</label>
+                            <input type="text" name="title"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()">
+                                <i class="fa fa-search"></i>&nbsp;搜索
+                            </a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()">
+                                <i class="fa fa-refresh"></i>&nbsp;重置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:homework:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/homework";
+
+    $(function () {
+        $('#bootstrap-table').bootstrapTable('destroy');
+
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/studenthomework/submissions",  // 假设这是获取已提交记录的接口
+            method: 'post',
+            contentType: "application/x-www-form-urlencoded",
+            pagination: true,
+            sidePagination: 'server', // 建议用 server 分页，因为提交记录可能很多
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            search: false,
+            showColumns: true,
+            toolbar: '#toolbar',
+            exportDataType: "all",
+            exportTypes: ['excel'],
+            columns: [
+                { field: 'id', title: 'ID', visible: false },
+                { field: 'homeworkId', title: '作业ID', width: 80 },
+                { field: 'studentName', title: '学生姓名', width: 100 },
+                { field: 'studentNo', title: '学号', width: 120 },
+                {
+                    field: 'fileName',
+                    title: '文件名',
+                    formatter: function(v, row) {
+                        if (v && row.fileUrl) {
+                            return `<a href="${row.fileUrl}" target="_blank">${v}</a>`;
+                        }
+                        return v || '-';
+                    }
+                },
+                {
+                    field: 'submitTime',
+                    title: '提交时间',
+                    formatter: function(v) {
+                        return v ? moment(v).format('YYYY-MM-DD HH:mm:ss') : '-';
+                    }
+                },
+                {
+                    field: 'status',
+                    title: '状态',
+                    formatter: function(v) {
+                        if (v === 'submitted') return '<span class="label label-primary">已提交</span>';
+                        if (v === 'late') return '<span class="label label-warning">迟交</span>';
+                        if (v === 'revised') return '<span class="label label-info">已修订</span>';
+                        return v || '-';
+                    }
+                },
+                {
+                    field: 'score',
+                    title: '得分',
+                    formatter: function(v) {
+                        return v != null ? v.toFixed(2) : '-';
+                    }
+                },
+                {
+                    field: 'teacherComment',
+                    title: '教师评语',
+                    formatter: function(v) {
+                        return v || '-';
+                    }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row) {
+                        let html = '';
+                        if (row.fileUrl) {
+                            html += `<a class="btn btn-xs btn-success" href="${row.fileUrl}" target="_blank"><i class="fa fa-download"></i> 下载</a> `;
+                        }
+                        return html;
+                    }
+                }
+            ],
+            responseHandler: function(res) {
+                console.log("Submission Response:", res);
+                if (res.code === 0 && Array.isArray(res.data)) {
+                    return {
+                        rows: res.data,
+                        total: res.total || res.data.length
+                    };
+                } else {
+                    layer.msg(res.msg || "加载提交记录失败");
+                    return { rows: [], total: 0 };
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('我的作业列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <!-- 搜索区域（可选，作业一般不搜，可简化或移除） -->
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <label>作业标题：</label>
+                            <input type="text" name="title"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()">
+                                <i class="fa fa-search"></i>&nbsp;搜索
+                            </a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()">
+                                <i class="fa fa-refresh"></i>&nbsp;重置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <!-- 工具栏 -->
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="ssry:homework:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer"/>
+
+<script th:inline="javascript">
+    var prefix = ctx + "ssry/homework";
+
+    $(function () {
+        $('#bootstrap-table').bootstrapTable('destroy');
+
+        $('#bootstrap-table').bootstrapTable({
+            url: prefix + "/studenthomework",  // 注意：这是 POST 接口，需配置 method
+            method: 'post', // 因为你的接口是 @PostMapping
+            contentType: "application/x-www-form-urlencoded",
+            pagination: true,
+            sidePagination: 'client',
+            pageSize: 10,
+            pageList: [10, 25, 50],
+            search: false,
+            showColumns: true,
+            toolbar: '#toolbar',
+            exportDataType: "all",
+            exportTypes: ['excel'],
+            columns: [
+                { field: 'title', title: '作业标题', width: 200 },
+                { field: 'content', title: '作业内容', width: 300, formatter: function(v) { return v || '-'; } },
+                { field: 'courseName', title: '课程名称', width: 100 },
+                {
+                    field: 'issueDate',
+                    title: '发布日期',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'dueDate',
+                    title: '截止日期',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'dueTime',
+                    title: '截止时间',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'requiredFormat',
+                    title: '格式要求',
+                    formatter: function(v) { return v || '-'; }
+                },
+                {
+                    field: 'maxSizeMb',
+                    title: '最大大小(MB)',
+                    formatter: function(v) { return v ? v + ' MB' : '-'; }
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row) {
+                        return `<a class="btn btn-xs btn-info" href="${ctx}ssry/homework/submission/submit?homeworkId=${row.id}">
+                                    <i class="fa fa-upload"></i> 提交作业
+                                </a>`;
+                    }
+                }
+            ],
+            responseHandler: function(res) {
+                console.log("Homework Response:", res);
+                if (res.code === 0 && Array.isArray(res.data)) {
+                    return res.data;
+                } else {
+                    layer.msg(res.msg || "加载作业失败");
+                    return [];
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

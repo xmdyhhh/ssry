@@ -116,4 +116,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                      #{appStatus}, #{adminRemark}, #{isRead}, #{createTime}
                  )
     </insert>
+    <insert id="sendRemider" parameterType="map">
+        INSERT INTO message (
+            title, content,
+            sender_type, sender_id, sender_name,
+            receiver_type, receiver_id,
+            msg_type, is_application,
+            app_status, admin_remark, is_read,
+            create_time
+        ) VALUES (
+                     '提醒', #{content},
+                     'teacher', #{senderId}, #{senderName},
+                     'student', #{receiverId},
+                     'notice', 0,
+                     NULL, NULL, 0,
+                     NOW()
+                 )
+    </insert>
 </mapper>

@@ -57,6 +57,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM student
         WHERE college_id = #{receiverId}
     </select>
+    <select id="countByCourseId" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM student
+        left join enrollment on student.id = enrollment.student_id
+        WHERE enrollment.course_id = #{courseId}
+    </select>
+    <select id="getStudentsByCourseId" resultType="com.ruoyi.ssry.domain.Student">
+        SELECT *
+        FROM student
+        left join enrollment on student.id = enrollment.student_id
+        WHERE enrollment.course_id = #{courseId}
+        and enrollment.status = 'enrolled';
+    </select>
 
     <insert id="insertStudent" parameterType="Student" useGeneratedKeys="true" keyProperty="id">
         insert into student

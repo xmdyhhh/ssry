@@ -105,4 +105,10 @@ public class CourseServiceImpl implements ICourseService {
             return AjaxResult.error("新增失败：" + e.getMessage());
         }
     }
+
+    @Override
+    public List<Course> selectenrolledCourseBystudentId(String studentId) {
+        return courseMapper.selectenrolledCourseBystudentId(studentId);
+    }
+
 }

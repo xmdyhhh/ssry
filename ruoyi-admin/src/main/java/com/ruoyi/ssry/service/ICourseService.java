@@ -63,4 +63,7 @@ public interface ICourseService
     public int deleteCourseById(String id);
 
     AjaxResult addCourse(CourseAddDTO dto);
+
+    List<Course> selectenrolledCourseBystudentId(String studentId);
+
 }
